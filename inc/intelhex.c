@@ -1,4 +1,4 @@
-#include <intelhex.h>
+#include "intelhex.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -70,7 +70,7 @@ int readHexFile(const char *path, uint8_t *destination, int max_length) {
                 ++address;
             }
 
-            //Checksumme prüfen
+            //Checksumme prï¿½fen
             const uint8_t rest = checksum + readOneHexByte(line + DATAFIELD_POSITION + count*2);
             //Checksumme falsch, beenden
             if(rest) return ret;
@@ -79,7 +79,7 @@ int readHexFile(const char *path, uint8_t *destination, int max_length) {
         }
         case 1: {
             //Endchunk
-            //Checksumme prüfen
+            //Checksumme prï¿½fen
             const uint8_t rest = checksum + readOneHexByte(line + CHECKSUM_TYPE1_POSITION);
 
             //Checksumme falsch, beenden

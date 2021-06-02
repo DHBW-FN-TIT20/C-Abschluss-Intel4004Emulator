@@ -1,7 +1,11 @@
-#include <4004_stack.h>
-#include <stack_base.h>
+// Include local header files
+#include "4004_stack.h"
+
+// Include global header files
 #include <cstdint>
 #include <cstring>
+
+// Declaring namespaces
 using namespace std;
 
 Intel4004Stack::Intel4004Stack() :
@@ -98,7 +102,12 @@ void Intel4004Stack::WarningCondition(const EDirection) { /* Wird bei Unter/Übe
 #ifdef _UNITTEST_
 
 #define CATCH_CONFIG_FAST_COMPILE
-#include <catch.hpp>
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+	#include "..\inc\catch.hpp"
+#elif __unix__
+	#include "../inc/catch.hpp"
+#endif
 
 class MyStack: public Intel4004Stack {
 	bool reported_overflow, reported_underflow;
@@ -297,5 +306,4 @@ TEST_CASE("Stack") {
 		CHECK(stack.getReportedUnderflow());
 	}
 }
-#endif
-
+#endif //_UNITTEST_

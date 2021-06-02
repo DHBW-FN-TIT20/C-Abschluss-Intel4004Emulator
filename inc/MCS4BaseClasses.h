@@ -1,7 +1,7 @@
 #ifndef _MCS4BaseClasses_h_
 #define _MCS4BaseClasses_h_
 
-#include <400x_GlobalDefines.h>
+#include "400x_GlobalDefines.h"
 
 #include<cstdint>
 

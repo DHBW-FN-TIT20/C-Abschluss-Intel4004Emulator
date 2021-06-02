@@ -8,3 +8,9 @@
 - Register Array aus 16 x uint4
 - ProgrammCounter int
 - CycleCounter
+
+
+PROBLEME:
+4001.cpp
+    - source (Ab jetzt mit chip!) bei port
+    
