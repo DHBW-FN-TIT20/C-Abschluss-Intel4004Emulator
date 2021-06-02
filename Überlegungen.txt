@@ -1,0 +1,10 @@
+- Intel4002.h, Intel4001.h ableiten
+- Stackverwaltung aus Musterlösung
+- IntelHex lesen auch aus Musterlösung
+- Switch-Case für die Befehle
+- Befehle in einzelne Methoden
+- Accumulator uint4
+- CarryFlag bool
+- Register Array aus 16 x uint4
+- ProgrammCounter int
+- CycleCounter
