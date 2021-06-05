@@ -123,5 +123,10 @@ private:
 	 *	PC zuerst erhöhen, dann Funktion aufrufen!!
 	 * 	Bei two-word-commands liest nextCommand() beide Bytes ein und übergibt diese an die jeweilige Funtion
 	 */
+
+	/**
+	 * No Operation
+	 */
+	void NOP();
 };
 #endif // _4004_h_
