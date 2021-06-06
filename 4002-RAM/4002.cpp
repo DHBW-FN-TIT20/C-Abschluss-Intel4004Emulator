@@ -56,8 +56,8 @@ void Intel4002::reset() {
 
     for (int i = 0; i < MAX_NUMBER_OF_BANKS; i++) {
         for (int j = 0; j < MAX_NUMBER_OF_RAM_CHIPS; j++) {
-            memset(RAM[i][j], 0x0, RAM_CELLS_EACH_CHIP);
-            memset(RAMStatus[i][j], 0x0, STATUS_CELLS_EACH_CHIP);
+            memset(RAM[i][j], 0, RAM_CELLS_EACH_CHIP);
+            memset(RAMStatus[i][j], 0, STATUS_CELLS_EACH_CHIP);
         }
         memset(RAMPort[i], 0, MAX_NUMBER_OF_RAM_CHIPS);
     }
@@ -83,19 +83,19 @@ bool Intel4002::writeRAMNibble(const ERAMBank bank, const ERAMChip chip, const i
 }
 
 bool Intel4002::isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip, const int address) const {
-    return (INSTALLEDRAM[bank][chip] && 0b00 <= (address >> 4) && (address >> 4) <= 0b11 && 0b0000 <= (uint4_t) address && (uint4_t) address <= 0b0011);
+    return (INSTALLEDRAM[bank][chip] && 0b00 <= (address >> 4) && (address >> 4) <= 0b11 && 0b0000 <= (address & 0b1111) && (address & 0b1111) <= 0b0011);
 }
 
 uint4_t Intel4002::readStatusNibble(const ERAMBank bank, const ERAMChip chip, const int address) const {
     if (isStatusAdrAccessable(bank, chip, address)) {
-        return RAMStatus[bank][chip][address];
+        return RAMStatus[bank][chip][(address >> 4) * 4 + (address & 0b1111)];
     }
     return 0;
 }
 
 bool Intel4002::writeStatusNibble(const ERAMBank bank, const ERAMChip chip, const int address, const uint4_t value) const {
     if (isStatusAdrAccessable(bank, chip, address)) {
-        RAMStatus[bank][chip][address] = value;
+        RAMStatus[bank][chip][(address >> 4) * 4 + (address & 0b1111)] = value;
         return true;
     }
     return false;
