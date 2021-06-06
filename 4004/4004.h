@@ -124,9 +124,74 @@ private:
 	 * 	Bei two-word-commands liest nextCommand() beide Bytes ein und übergibt diese an die jeweilige Funtion
 	 */
 
+	/******* One word machine instruction ********************/
 	/**
 	 * No Operation
 	 */
 	void NOP();
+	/**
+	 * Load data to Accumulator
+	 */
+	void LDM(UCommand command);
+	/**
+	 * Load index register to Accumulator
+	 */ 
+	void LD(UCommand command);
+	/**
+	 * Exchange index register and accumulator
+	 */ 
+	void XCH(UCommand command);
+	/**
+	 * Add index register to accumulator with carry
+	 */ 
+	void ADD(UCommand command);
+	/**
+	 * Subtract index register from accumulator with borrow
+	 */ 
+	void SUB(UCommand command);
+	/**
+	 * Increment index register
+	 */ 
+	void INC(UCommand command);
+	/**
+	 * Branch back and load data to the accumulator
+	 */ 
+	void BBL(UCommand command);
+	/**
+	 * Jump indirect
+	 */ 
+	void JIN(UCommand command);
+	/**
+	 * Send register control
+	 */ 
+	void SRC(UCommand command);
+	/**
+	 * Fetch indirect from ROM
+	 */ 
+	void FIN(UCommand command);
+
+	/******************Accumulator Group Instructions **********/
+
+	/**
+	 * Clear both
+	 */
+	void CLB();
+	/**
+	 * Clear carry
+	 */
+	void CLC();
+	/**
+	 * Complement carry
+	 */
+	void CMC();
+	/**
+	 * Set carry
+	 */
+	void STC();
+	/**
+	 * Complement Accumulator
+	 */
+	void CMA();
+
 };
 #endif // _4004_h_
