@@ -91,6 +91,12 @@ public:
      */
     virtual bool writeToPort(const EROMChip chip, const uint4_t value);
 
+    // Own functions
+
+    virtual void setCurrentChip(const EROMChip chip);
+
+    virtual EROMChip getCurrentChip() const;
+
 protected:
     /**
      * L�schte alle Speicherbereiche die nicht installiert sind
@@ -103,11 +109,6 @@ protected:
     const uint16_t installed_banks;
     
 	/**
-     * Auswahl des installierten Chips (auch nicht installierte B�nke)
-     */
-    uint8_t source;
-    
-	/**
      * ROM Inhalt (auch nicht installierte B�nke)
      */
     uint8_t *ROM;
@@ -116,6 +117,11 @@ protected:
      * Ist ROM installiert (linear)
      */
     bool *INSTALLEDROM;
+
+    /**
+     * Aktuell ausgewählter Chip
+     */
+    EROMChip currentChip;
     
 	/**
      * Port Inhalt (auch nicht installierte B�nke)

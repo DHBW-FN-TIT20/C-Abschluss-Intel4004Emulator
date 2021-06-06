@@ -14,8 +14,7 @@
 using namespace std;
 
 
-Intel4001::Intel4001(const uint16_t installed_banks) :
-    installed_banks(installed_banks), source(0), ROM(nullptr), INSTALLEDROM(nullptr), PORTS(nullptr) {
+Intel4001::Intel4001(const uint16_t installed_banks) : installed_banks(installed_banks), ROM(nullptr), INSTALLEDROM(nullptr), PORTS(nullptr) {
 
     ROM = new uint8_t[ROM_MEMORY_SIZE];
     INSTALLEDROM = new bool[MAX_NUMBER_OF_ROM_CHIPS];
@@ -40,7 +39,6 @@ void Intel4001::reset() {
 
     memset(ROM, 0, ROM_MEMORY_SIZE);
     memset(PORTS, 0, MAX_NUMBER_OF_ROM_CHIPS);
-    source = 0;
 }
 
 uint16_t Intel4001::getEnabledBank() const {
@@ -87,19 +85,15 @@ uint8_t Intel4001::read(const UBankedAddress address) const {
     return ROM[address.raw & 0x0FFF];
 }
 
-// void Intel4001::setSource(const uint8_t source) {
-//     this->source = (source < MAX_NUMBER_OF_ROM_CHIPS) ? source : 0;
-// }
-
 uint4_t Intel4001::readFromPort(const EROMChip chip) const {
-    if(INSTALLEDROM[source])
-        return PORTS[source];
+    if(INSTALLEDROM[chip])
+        return PORTS[chip];
     else return 0;
 }
 
 bool Intel4001::writeToPort(const EROMChip chip, const uint4_t value) {
-    if(INSTALLEDROM[source])
-        PORTS[source] = value;
+    if(INSTALLEDROM[chip])
+        PORTS[chip] = value;
 }
 
 void Intel4001::clearROMWhoIsNotInstalled() {
@@ -110,3 +104,15 @@ void Intel4001::clearROMWhoIsNotInstalled() {
 }
 
 const size_t Intel4001::ROM_MEMORY_SIZE = { MAX_NUMBER_OF_ROM_CHIPS * ROM_CELLS_EACH_CHIP };
+
+// Own functions
+
+void Intel4001::setCurrentChip(const EROMChip chip) {
+    if (isLinAdrAccessable(UBankedAddress(bank = chip; address = 0).raw)) {
+        currentChip = chip;
+    }
+}
+
+EROMChip Intel4001::getCurrentChip() const {
+    return currentChip;
+}

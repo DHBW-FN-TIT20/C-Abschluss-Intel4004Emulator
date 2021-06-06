@@ -17,20 +17,19 @@ using namespace std;
 class Intel4002 : public Intel4002Base {
 public:
 	enum {
-        RAM_CELLS_EACH_CHIP = 256,
+        RAM_CELLS_EACH_CHIP = 64,
+		STATUS_CELLS_EACH_CHIP = 16,
         MAX_NUMBER_OF_RAM_CHIPS = 4,
 		MAX_NUMBER_OF_BANKS = 8
     };
 	/**
 	 * Konstruktor
 	 */
-	Intel4002() {
-	}
+	Intel4002(const uint32_t installedChips = 0xFFFF);
 	/**
 	 * Destruktor
 	 */
-	virtual ~Intel4002() {
-	}
+	virtual ~Intel4002();
 	/**
 	 * Setzt die internen Register zurück zurück
 	 */
@@ -102,8 +101,9 @@ public:
 	 * @param bank Bank
 	 * @param chip Chip
 	 * @param value Wert
+	 * @return Ob an dieser Stelle schreibbar war
 	 */
-	virtual void writePortBuffer(const ERAMBank bank, const ERAMChip chip, uint4_t value);
+	virtual bool writePortBuffer(const ERAMBank bank, const ERAMChip chip, uint4_t value);
 	/**
 	 * Setzt die aktuelle Bank
 	 * @param bank Bank
@@ -123,7 +123,7 @@ public:
 	 * Gibt den aktuellen Chip zurück
 	 * @return currentChip
 	 */
-	virtual ERAMBank getCurrentChip() const;
+	virtual ERAMChip getCurrentChip() const;
 	/**
 	 * Setzt die aktuelle Adresse
 	 * @param address Adresse
@@ -133,7 +133,7 @@ public:
 	 * Gibt die aktuelle Adresse zurück
 	 * @return currentAddress
 	 */
-	virtual ERAMBank getCurrentAddress() const;
+	virtual int getCurrentAddress() const;
 
 private:
 	ERAMBank currentBank;
@@ -142,31 +142,6 @@ private:
 	uint4_t ***RAM;
 	uint4_t ***RAMStatus;
 	uint4_t **RAMPort;
-
-// int ***arr3D = new int**[X];
-// for(int i =0; i<X; i++){
-//    arr3D[i] = new int*[Y];
-//    for(int j =0; j<Y; j++){
-//        arr3D[i][j] = new int[Z];
-//        for(int k = 0; k<Z;k++){
-//           arr3D[i][j][k] = 0;
-//        }
-//    }
-// }
-
-// arr = new int **[height]();
-//     for (i = 0; i < height; i++)
-//     {
-//         arr[i] = new int *[width]();
-//         for (j = 0; j < width; j++)
-//             arr[i][j] = new int [depth]();
-//     }
-// for (i = 0; i < rows; i++)
-// {
-//     for (j = 0; j < columns; j++)
-//         delete[] arr[i][j];
-//     delete[] arr[i];
-// }
-// delete[] arr;
+	bool **INSTALLEDRAM;
 };
 #endif // _4002_h_
