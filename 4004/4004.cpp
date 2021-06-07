@@ -120,27 +120,64 @@ void Intel4004::CLB()
 {
     accumulator = 0;
     carryFlag = false;
+    ticks++;
 }
 
 void Intel4004::CLC()
 {
     carryFlag = false;
+    ticks++;
 }
 
 void Intel4004::CMC()
 {
     carryFlag = !carryFlag;
+    ticks++;
 }
 
 void Intel4004::STC()
 {
     carryFlag = true;
+    ticks++;
 }
 
 void Intel4004::CMA()
 {
     //XOR
     accumulator ^= 0b1111;
+    ticks++;
+}
+
+void Intel4004::IAC()
+{
+    accumulator++;
+    carryFlag = accumulator >> 4;
+    //reset bits 4-7
+    accumulator &= ~(0b11110000);
+    ticks++;
+}
+
+void Intel4004::DAC()
+{
+    accumulator--;
+    carryFlag = !(accumulator >> 4);
+    //reset bits 4-7
+    accumulator &= ~(0b11110000);
+    ticks++;
+}
+
+void Intel4004::RAL()
+{
+    bool tempCarryFlag = carryFlag;
+    carryFlag = accumulator & 0b1000;
+    accumulator = accumulator << 1;
+    accumulator = accumulator + tempCarryFlag;
+    ticks++;
+}
+
+void Intel4004::RAR()
+{
+
 }
 
 

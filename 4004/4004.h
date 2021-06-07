@@ -192,6 +192,22 @@ private:
 	 * Complement Accumulator
 	 */
 	void CMA();
+	/**
+	 * Increment accumulator
+	 */
+	void IAC();
+	/**
+	 * decrement accumulator
+	 */
+	void DAC();
+	/**
+	 * Rotate left
+	 */
+	void RAL();
+	/**
+	 * Rotate right
+	 */
+	void RAR();
 
 };
 #endif // _4004_h_
