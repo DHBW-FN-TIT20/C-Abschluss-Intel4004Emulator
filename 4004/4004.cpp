@@ -6,47 +6,45 @@
 // Declaring namespaces
 using namespace std;
 
-class Intelpoc : public virtual Intel4004 {
-public: 
-    Intel4004(){}
 
-    ~Intel4004() override {}
+Intel4004::Intel4004(){}
 
-    void reset() override {}
+Intel4004::~Intel4004() {}
 
-    bool getCarry() const override {
-        return  
-    }
+void Intel4004::reset() {}
 
-    uint4_t getAccumulator() const override {
-        return accumulator;
-    }
+bool Intel4004::getCarry() const {
+    return carryFlag;
+}
 
-    UBankedAddress getPC() const override {}
+uint4_t Intel4004::getAccumulator() const {
+    return accumulator;
+}
 
-    uint4_t getRegister(const ERegister reg) override {}
-    uint8_t getRegisterPair(const ERegister reg) override {}
-    Intel4001Base* getPtrToROM() override {
-        return *ROM;
-    }
+UBankedAddress Intel4004::getPC() const {}
 
-    Intel4002Base* getPtrToRAM() override {
-        return *RAM;
-    }
+uint4_t Intel4004::getRegister(const ERegister reg) {}
+uint8_t Intel4004::getRegisterPair(const ERegister reg) {}
+Intel4001Base* Intel4004::getPtrToROM() {
+    return ROM;
+}
 
-    Intel4004StackBase* getPtrToStack() override {
-        return *stack;
-    }
+Intel4002Base* Intel4004::getPtrToRAM() {
+    return RAM;
+}
 
-    uint64_t getTicks() const override {}
-    void resetTicks() override {}
-    bool getTestPin() const override {
-        return testPin;
-    }
+Intel4004StackBase* Intel4004::getPtrToStack() {
+    return stack;
+}
 
-    void setTestPin(const bool value) override {
-        testPin = value;
-    }
-    
-    void nextCommand() override {}
-};
+uint64_t Intel4004::getTicks() const {}
+void Intel4004::resetTicks() {}
+bool Intel4004::getTestPin() const {
+    return testPin;
+}
+
+void Intel4004::setTestPin(const bool value) {
+    testPin = value;
+}
+
+void Intel4004::nextCommand() {}
