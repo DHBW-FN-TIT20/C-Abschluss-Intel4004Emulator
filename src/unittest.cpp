@@ -474,8 +474,252 @@ TEST_CASE("UnitTest_Intel4004") {
         CHECK(processor->getTicks() == 16);
     }
     SECTION("FIN") {
+        /**
+         * FIN_0        1   fetch FIN_0 at 0x00 to register pair 0
+         * FIM_0 0x02   1   fetch 0x02 to register pair 0
+         * FIN_2        1   fetch 0x02 at 0x02 to register pair 2
+         * FIN_4        1   fetch 0x02 at 0x02 to register pair 4
+         * FIN_6        1   fetch 0x02 at 0x02 to register pair 6
+         * FIN_8        1   fetch 0x02 at 0x02 to register pair 8
+         * FIN_10       1   fetch 0x02 at 0x02 to register pair 10
+         * FIN_12       1   fetch 0x02 at 0x02 to register pair 12
+         * FIN_14       1   fetch 0x02 at 0x02 to register pair 14
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIN_0, FIM_0, 0x02, FIN_2, FIN_4, FIN_6, FIN_8, FIN_10, FIN_12, FIN_14, NOP };
+
+        INTEL_MCS4_CLASS instance;
+        Intel4004Base *processor = { &instance };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 11);
+
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getRegisterPair(Pair_R1_R0));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R3_R2));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R5_R4));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R7_R6));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R9_R8));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R11_R10));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R13_R12));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R15_R14));
+        // FIN_0
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R1_R0) == FIN_0);
+        // FIM_0 0x02
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R1_R0) == 0x02);
+        // FIN_2
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R3_R2) == 0x02);
+        // FIN_4
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R5_R4) == 0x02);
+        // FIN_6
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R7_R6) == 0x02);
+        // FIN_8
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R9_R8) == 0x02);
+        // FIN_10
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R11_R10) == 0x02);
+        // FIN_12
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R13_R12) == 0x02);
+        // FIN_14
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R15_R14) == 0x02);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+
+        CHECK(processor->getTicks() == 10);
+
+        // RESET Processor to test jump at ROM-END
+        processor->reset();
+
+        /**
+         * FIM_0 0x02   1   fetch 0x02 to register pair 0
+         * JCN_4 0xFF   1   JUMP to 0xFF because accumulator=0
+         * FIN_2        1   fetch 0x3A at 0x102 to register pair 2
+         * NOP          1
+         * NOP          1
+         */
+
+        uint8_t sourceTwo[261];
+
+        for (int i = 0; i < 261; i++) {
+            sourceTwo[i] = 0x00;
+        }
+
+        sourceTwo[0] = FIM_0;
+        sourceTwo[1] = 0x03;
+        sourceTwo[2] = JCN_4;
+        sourceTwo[3] = 0xFF;
+        sourceTwo[0xFF] = FIN_2;
+        sourceTwo[0x100] = NOP;
+        sourceTwo[0x101] = NOP;
+        sourceTwo[0x102] = 0x3A;
+
+        CHECK(processor->getPtrToROM()->writeFrom(sourceTwo, sizeof(sourceTwo)) == 261);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getTestPin());
+        CHECK_FALSE(processor->getRegisterPair(Pair_R1_R0));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R3_R2));
+        // FIM_0 0x02
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R1_R0) == 0x02);
+        // JCN_4 0xFF
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0xFF);
+        // FIN_2
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R3_R2) == 0x3A);
+
+        CHECK(processor->getTicks() == 5);
     }
     SECTION("JIN") {
+        /**
+         * FIM_0 0x12
+         * FIM_2 0x14
+         * FIM_4 0x16
+         * FIM_6 0x18
+         * FIM_8 0x1A
+         * FIM_10 0x1C
+         * FIM_12 0x1E
+         * FIM_14 0x20
+         * JIN_0        1
+         * NOP          0
+         * JIN_2        1
+         * NOP          0
+         * JIN_4        1
+         * NOP          0
+         * JIN_6        1
+         * NOP          0
+         * JIN_8        1
+         * NOP          0
+         * JIN_10       1
+         * NOP          0
+         * JIN_12       1
+         * NOP          0
+         * JIN_14       1
+         * NOP          0
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_0, 0x12, FIM_2, 0x14, FIM_4, 0x16, FIM_6, 0x18, FIM_8, 0x1A, FIM_10, 0x1C, FIM_12, 0x1E, FIM_14, 0x20, JIN_0, NOP, JIN_2, NOP, JIN_4, NOP, JIN_6, NOP, JIN_8, NOP, JIN_10, NOP, JIN_12, NOP, JIN_14, NOP, NOP };
+
+        INTEL_MCS4_CLASS instance;
+        Intel4004Base *processor = { &instance };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 33);
+
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getRegisterPair(Pair_R1_R0));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R3_R2));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R5_R4));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R7_R6));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R9_R8));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R11_R10));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R13_R12));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R15_R14));
+        // FIM_0 0x12
+        processor->nextCommand();
+        // FIM_2 0x14
+        processor->nextCommand();
+        // FIM_4 0x16
+        processor->nextCommand();
+        // FIM_6 0x18
+        processor->nextCommand();
+        // FIM_8 0x1A
+        processor->nextCommand();
+        // FIM_10 0x1C
+        processor->nextCommand();
+        // FIM_12 0x1E
+        processor->nextCommand();
+        // FIM_14 0x20
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R1_R0) == 0x12);
+        CHECK(processor->getRegisterPair(Pair_R3_R2) == 0x14);
+        CHECK(processor->getRegisterPair(Pair_R5_R4) == 0x16);
+        CHECK(processor->getRegisterPair(Pair_R7_R6) == 0x18);
+        CHECK(processor->getRegisterPair(Pair_R9_R8) == 0x1A);
+        CHECK(processor->getRegisterPair(Pair_R11_R10) == 0x1C);
+        CHECK(processor->getRegisterPair(Pair_R13_R12) == 0x1E);
+        CHECK(processor->getRegisterPair(Pair_R15_R14) == 0x20);
+        CHECK(processor->getPC().banked.address == 0x10);
+        // JIN_0
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x12);
+        // JIN_2
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x14);
+        // JIN_4
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x16);
+        // JIN_6
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x18);
+        // JIN_8
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x1A);
+        // JIN_10
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x1C);
+        // JIN_12
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x1E);
+        // JIN_14
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x20);
+
+        CHECK(processor->getTicks() == 24);
+
+        // RESET Processor to test jump at ROM-END
+        processor->reset();
+
+        /**
+         * FIM_0 0x02   1   fetch 0x02 to register pair 0
+         * JCN_4 0xFF   1   JUMP to 0xFF because accumulator=0
+         * JIN_0        1   JUMP to 0x102
+         * NOP          1
+         * NOP          1
+         */
+
+        uint8_t sourceTwo[261];
+
+        for (int i = 0; i < 261; i++) {
+            sourceTwo[i] = 0x00;
+        }
+
+        sourceTwo[0] = FIM_0;
+        sourceTwo[1] = 0x03;
+        sourceTwo[2] = JCN_4;
+        sourceTwo[3] = 0xFF;
+        sourceTwo[0xFF] = JIN_0;
+        sourceTwo[0x100] = NOP;
+        sourceTwo[0x101] = NOP;
+        sourceTwo[0x102] = NOP;
+
+        CHECK(processor->getPtrToROM()->writeFrom(sourceTwo, sizeof(sourceTwo)) == 261);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getTestPin());
+        CHECK_FALSE(processor->getRegisterPair(Pair_R1_R0));
+        // FIM_0 0x02
+        processor->nextCommand();
+        
     }
     SECTION("JUM") {
     }
