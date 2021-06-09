@@ -218,9 +218,40 @@ void Intel4004::RAL()
 
 void Intel4004::RAR()
 {
-
+    
 }
 
 
 
+//Two Word Machine Instruction
 
+void Intel4004::JUN(UCommand byte1, UCommand byte2)
+{
+    PC.banked.bank = byte1.nibble.opa;
+    PC.banked.address = byte2.data;
+    ticks = ticks + 2;
+}
+
+void Intel4004::JMS(UCommand byte1, UCommand byte2)
+{
+    UBankedAddress returnAddress = PC.inc();
+    stack->push(returnAddress);
+    PC.banked.bank = byte1.nibble.opa;
+    PC.banked.address = byte2.data;
+    ticks = ticks + 2;
+}
+
+void Intel4004::JCN(UCommand byte1, UCommand byte2)
+{
+    
+}
+
+void Intel4004::ISZ(UCommand byte1, UCommand byte2)
+{
+    
+}
+
+void Intel4004::FIM(UCommand byte1, UCommand byte2)
+{
+    
+}

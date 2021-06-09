@@ -197,7 +197,7 @@ private:
 	 */
 	void IAC();
 	/**
-	 * decrement accumulator
+	 * Decrement accumulator
 	 */
 	void DAC();
 	/**
@@ -208,6 +208,28 @@ private:
 	 * Rotate right
 	 */
 	void RAR();
+
+
+	/**
+	 * Jump unconditional
+	 */
+	void JUN(UCommand byte1, UCommand byte2);
+	/**
+	 * Jump to Subroutine
+	 */
+	void JMS(UCommand byte1, UCommand byte2);
+	/**
+	 * Jump conditional
+	 */
+	void JCN(UCommand byte1, UCommand byte2);
+	/**
+	 * Increment index register skip if zero
+	 */
+	void ISZ(UCommand byte1, UCommand byte2);
+	/**
+	 * Fetched immediate from ROM
+	 */
+	void FIM(UCommand byte1, UCommand byte2);
 
 };
 #endif // _4004_h_
