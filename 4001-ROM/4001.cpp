@@ -108,7 +108,7 @@ const size_t Intel4001::ROM_MEMORY_SIZE = { MAX_NUMBER_OF_ROM_CHIPS * ROM_CELLS_
 // Own functions
 
 void Intel4001::setCurrentChip(const EROMChip chip) {
-    if (isLinAdrAccessable(UBankedAddress(bank = chip; address = 0).raw)) {
+    if (isLinAdrAccessable(UBankedAddress(chip, 0).raw)) {
         currentChip = chip;
     }
 }

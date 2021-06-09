@@ -928,6 +928,124 @@ TEST_CASE("UnitTest_Intel4004") {
         CHECK(processor->getTicks() == 5);
     }
     SECTION("INC") {
+        /**
+         * CMC          1   set carry=1
+         * FIM_0 0x01   1
+         * FIM_2 0x23   1
+         * FIM_3 0x45   1
+         * FIM_4 0x67   1
+         * FIM_6 0x89   1
+         * FIM_8 0xAB   1
+         * FIM_10 0xCD  1
+         * FIM_12 0xEF  1
+         * INC_0        1
+         * INC_1        1
+         * INC_2        1
+         * INC_3        1
+         * INC_4        1
+         * INC_5        1
+         * INC_6        1   
+         * INC_7        1
+         * INC_8        1
+         * INC_9        1
+         * INC_10       1
+         * INC_11       1
+         * INC_12       1
+         * INC_13       1
+         * INC_14       1
+         * INC_15       1
+         * NOP          1
+         */
+
+        uint8_t source[] = { CMC, FIM_0, 0x01, FIM_2, 0x23, FIM_4, 0x45, FIM_6, 0x67, FIM_8, 0x89, FIM_10, 0xAB, FIM_12, 0xCD, FIM_14, 0xEF, INC_0, INC_1, INC_2, INC_3, INC_4, INC_5, INC_6, INC_7, INC_8, INC_9, INC_10, INC_11, INC_12, INC_13, INC_14, INC_15, NOP };
+
+        INTEL_MCS4_CLASS instance;
+        Intel4004Base *processor = { &instance };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 34);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // CMC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0x01
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R1_R0) == 0x01);
+        // FIM_2 0x23
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R3_R2) == 0x23);
+        // FIM_4 0x45
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R5_R4) == 0x45);
+        // FIM_6 0x67
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R7_R6) == 0x67);
+        // FIM_8 0x89
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R9_R8) == 0x89);
+        // FIM_10 0xAB
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R11_R10) == 0xAB);
+        // FIM_12 0xCD
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R13_R12) == 0xCD);
+        // FIM_14 0xEF
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R15_R14) == 0xEF);
+        // INC_0
+        processor->nextCommand();
+        CHECK(processor->getRegister(R0) == 0x1);
+        // INC_1
+        processor->nextCommand();
+        CHECK(processor->getRegister(R1) == 0x2);
+        // INC_2
+        processor->nextCommand();
+        CHECK(processor->getRegister(R2) == 0x3);
+        // INC_3
+        processor->nextCommand();
+        CHECK(processor->getRegister(R3) == 0x4);
+        // INC_4
+        processor->nextCommand();
+        CHECK(processor->getRegister(R4) == 0x5);
+        // INC_5
+        processor->nextCommand();
+        CHECK(processor->getRegister(R5) == 0x6);
+        // INC_6
+        processor->nextCommand();
+        CHECK(processor->getRegister(R6) == 0x7);
+        // INC_7
+        processor->nextCommand();
+        CHECK(processor->getRegister(R7) == 0x8);
+        // INC_8
+        processor->nextCommand();
+        CHECK(processor->getRegister(R8) == 0x9);
+        // INC_9
+        processor->nextCommand();
+        CHECK(processor->getRegister(R9) == 0xA);
+        // INC_10
+        processor->nextCommand();
+        CHECK(processor->getRegister(R10) == 0xB);
+        // INC_11
+        processor->nextCommand();
+        CHECK(processor->getRegister(R11) == 0xC);
+        // INC_12
+        processor->nextCommand();
+        CHECK(processor->getRegister(R12) == 0xD);
+        // INC_13
+        processor->nextCommand();
+        CHECK(processor->getRegister(R13) == 0xE);
+        // INC_14
+        processor->nextCommand();
+        CHECK(processor->getRegister(R14) == 0xF);
+        // INC_15
+        processor->nextCommand();
+        CHECK(processor->getRegister(R15) == 0x0);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 33);
     }
     SECTION("ISZ") {
     }
