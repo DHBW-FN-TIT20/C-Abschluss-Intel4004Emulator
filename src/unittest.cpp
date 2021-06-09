@@ -1048,6 +1048,78 @@ TEST_CASE("UnitTest_Intel4004") {
         CHECK(processor->getTicks() == 33);
     }
     SECTION("ISZ") {
+        /**
+         * CMC          1   set carry=1
+         * FIM_0 0x00   1
+         * INC_1        1
+         * ISZ_0 0x03   1   JUMP to INC_1 (15 times then skip)
+         * JUN_0 0xFE   1   JUMP to 0x0FE
+         * ISZ_1 0x14   1   JUMP to 0x114
+         * NOP          1
+         */
+
+        uint8_t source[0x200];
+
+        source[0x000] = CMC;
+        source[0x001] = FIM_0;
+        source[0x002] = 0x00;
+        source[0x003] = INC_1;
+        source[0x004] = ISZ_0;
+        source[0x005] = 0x03;
+        source[0x006] = JUN_0;
+        source[0x007] = 0xFE;
+        source[0x0FE] = ISZ_1;
+        source[0x0FF] = 0x14;
+        source[0x114] = NOP;
+
+        INTEL_MCS4_CLASS instance;
+        Intel4004Base *processor = { &instance };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 512);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getRegisterPair(Pair_R1_R0));
+        CHECK_FALSE(processor->getRegisterPair(Pair_R3_R2));
+        // CMC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0x00
+        processor->nextCommand();
+        CHECK(processor->getRegisterPair(Pair_R1_R0) == 0x00);
+        for (int i = 0x01; i < 0xF; i++) {
+            // INC_1
+            processor->nextCommand();
+            CHECK(processor->getRegister(R1) == i);
+            // ISZ_0 0x03
+            processor->nextCommand();
+            CHECK(processor->getRegister(R0) == i);
+            CHECK(processor->getPC().banked.address == 0x03);
+            CHECK(processor->getCarry());
+        }
+        // INC_1
+        processor->nextCommand();
+        CHECK(processor->getRegister(R1) == 0x0);
+        // ISZ_0 0x03
+        processor->nextCommand();
+        CHECK(processor->getRegister(R0) == 0x0);
+        CHECK(processor->getPC().banked.bank == 0x06);
+        CHECK(processor->getCarry());
+        // JUN_0 0xFE
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.bank == 0x0);
+        CHECK(processor->getPC().banked.address == 0xFE);
+        // ISZ_1 0x14
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.bank == 0x1);
+        CHECK(processor->getPC().banked.address == 0x14);
+        CHECK(processor->getRegister(R1) == 0x1);
+        CHECK(processor->getCarry());
+        
+        CHECK(processor->getTicks() == 55);
+
     }
     SECTION("ADD") {
     }
