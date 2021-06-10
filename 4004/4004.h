@@ -208,6 +208,26 @@ private:
 	 * Rotate right
 	 */
 	void RAR();
+	/**
+	 * Transmit carry and clear
+	 */
+	void TCC();
+	/**
+	 * Decimal adjust accumulator
+	 */
+	void DAA();
+	/**
+	 * Transfer carry subtract
+	 */
+	void TCS();
+	/**
+	 * Keyboard process
+	 */
+	void KBP();
+	/**
+	 * Designate command line
+	 */
+	void DCL();
 
 
 	/**
@@ -230,6 +250,73 @@ private:
 	 * Fetched immediate from ROM
 	 */
 	void FIM(UCommand byte1, UCommand byte2);
+
+
+
+	/**
+	 * Read RAM character
+	 */
+	void RDM();
+	/**
+	 * Read RAM status character 0
+	 */
+	void RD0();
+	/**
+	 * Read RAM status character 1
+	 */
+	void RD1();
+	/**
+	 * Read RAM status character 2
+	 */
+	void RD2();
+	/**
+	 * Read RAM status character 3
+	 */
+	void RD3();
+	/**
+	 * Read ROM port
+	 */
+	void RDR();
+	/**
+	 * Write accumulator into RAM character
+	 */
+	void WRM();
+	/**
+	 * Write accumulator into RAM status character 0
+	 */
+	void WR0();
+	/**
+	 * Write accumulator into RAM status character 1
+	 */
+	void WR1();
+	/**
+	 * Write accumulator into RAM status character 2
+	 */
+	void WR2();
+	/**
+	 * Write accumulator into RAM status character 3
+	 */
+	void WR3();
+	/**
+	 * Write Program RAM
+	 */
+	void WPM();
+	/**
+	 * Write ROM port
+	 */
+	void WRR();
+	/**
+	 * Write memory port
+	 */
+	void WMP();
+	/**
+	 * Add from memory with carry
+	 */
+	void ADM();
+	/**
+	 * Subtract from memory with borrow
+	 */
+	void SBM();
 
 };
 #endif // _4004_h_
