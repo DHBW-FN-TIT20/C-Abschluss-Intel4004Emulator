@@ -61,6 +61,28 @@ typedef enum : uint8_t {
 	CHIP3, //!< Chip 3
 } ERAMChip;
 
+#ifdef _RAM_SPLITOFF_
+typedef enum {
+	UNKNOWN, //!< Unbekanmntes Kommando (gehört nicht zum Modul RAM)
+	NO_RAM_IMPLEMENTED,	//!< Für RAM freie Projekte zum testen
+	DCL,	//!< Kommando 'DCL'
+	SRC,	//!< Kommando 'SRC'
+	WRM,	//!< Kommando 'WRM'
+	WMP,	//!< Kommando 'WMP'
+	WR0,	//!< Kommando 'WR0'
+	WR1,	//!< Kommando 'WR1'
+	WR2,	//!< Kommando 'WR2'
+	WR3,	//!< Kommando 'WR3'
+	SBM,	//!< Kommando 'SBM'
+	RDM,	//!< Kommando 'RDM'
+	ADM,	//!< Kommando 'ADM'
+	RD0,	//!< Kommando 'RD0'
+	RD1,	//!< Kommando 'RD1'
+	RD2,	//!< Kommando 'RD2'
+	RD3		//!< Kommando 'RD3'
+} ERAMCommand;
+#endif
+
 typedef uint8_t uint4_t;
 typedef uint16_t uint12_t;
 
@@ -101,8 +123,6 @@ union UBankedAddress {
 		return raw = 0x0FFF & (raw + 1);
 	}
 };
-
-
 
 /**
  * Ein Byte in ein Kommando zerlegt
