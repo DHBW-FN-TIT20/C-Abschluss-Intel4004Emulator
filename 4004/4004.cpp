@@ -24,7 +24,7 @@ Intel4004::~Intel4004()
 
 void Intel4004::reset()
 {
-
+    // "A RESET causes DATA RAM BANK 0 to be selected" - MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf, p.3-49
 }
 
 bool Intel4004::getCarry() const
@@ -452,12 +452,88 @@ void Intel4004::RAL()
 void Intel4004::RAR()
 {
     bool tempCarryFlag = carryFlag;
-    carryFlag = accumulator & 0b1000;
-    accumulator = accumulator << 1;
-    accumulator = accumulator + tempCarryFlag;
+    carryFlag = accumulator & 1;
+    accumulator = accumulator >> 1;
+    accumulator = accumulator + (tempCarryFlag * 0b1000);
     //reset bits 4-7
     accumulator &= ~(0b11110000);
     ticks++;
+}
+
+void Intel4004::TCC()
+{
+    accumulator = 0;
+    accumulator = carryFlag;
+    carryFlag = false;
+    ticks++;
+}
+
+void Intel4004::DAA()
+{
+    if ((accumulator > 9) or (carryFlag)) {
+        accumulator += 6;
+        if (accumulator < 6) {
+            carryFlag = true;
+        }
+    }
+    ticks++;
+}
+
+void Intel4004::TCS()
+{
+    if (carryFlag) {
+        accumulator = 0b1010;
+    } else {
+        accumulator = 0b1001;
+    }
+    carryFlag = false;
+    ticks++;
+}
+
+void Intel4004::KBP()
+{
+    int count = 0;
+    uint4_t n = accumulator;
+    while (n) {
+        n &= (n - 1);
+        count++;
+        }
+    if (count > 1) {
+        accumulator = 0b1111;
+    } else if (accumulator & 0b0001) {
+        accumulator = 0b0001;
+    } else if (accumulator & 0b0010) {
+        accumulator = 0b0010;
+    } else if (accumulator & 0b0100) {
+        accumulator = 0b0011;
+    } else if (accumulator & 0b1000) {
+        accumulator = 0b0100;
+    } else {
+        accumulator = 0b0000;
+    }
+    ticks++;
+}
+
+void Intel4004::DCL()
+{
+    uint4_t n = (accumulator & 0b0111);
+    if (n == 0b0000) {
+        RAM->setCurrentBank(BANK0);
+    } else if (n == 0b0001) {
+        RAM->setCurrentBank(BANK1);
+    } else if (n == 0b0010) {
+        RAM->setCurrentBank(BANK2);
+    } else if (n == 0b0011) {
+        RAM->setCurrentBank(BANK3);
+    } else if (n == 0b0100) {
+        RAM->setCurrentBank(BANK4);
+    } else if (n == 0b0101) {
+        RAM->setCurrentBank(BANK5);
+    } else if (n == 0b0110) {
+        RAM->setCurrentBank(BANK6);
+    } else if (n == 0b0111) {
+        RAM->setCurrentBank(BANK7);
+    }
 }
 
 
@@ -485,27 +561,27 @@ void Intel4004::JCN(UCommand byte1, UCommand byte2)
     uint4_t jumpCondition = byte1.nibble.opa;
     bool jumpBool = false;
 
-    if (jumpCondition & 0b0100){
-        if (accumulator = 0){
+    if (jumpCondition & 0b0100) {
+        if (accumulator = 0) {
             jumpBool = true;
         }
     }
-    if (jumpCondition & 0b0010){
-        if (carryFlag = 1){
+    if (jumpCondition & 0b0010) {
+        if (carryFlag = 1) {
             jumpBool = true;
         }
     }
-    if (jumpCondition & 0b0001){
-        if (testPin = 0){
+    if (jumpCondition & 0b0001) {
+        if (testPin = 0) {
             jumpBool = true;
         }
     }
 
-    if (jumpCondition & 0b1000){
+    if (jumpCondition & 0b1000) {
         jumpBool = not jumpBool;
     }
 
-    if (jumpBool = true){
+    if (jumpBool = true) {
         PC.banked.address = byte2.data;
     }
     ticks = ticks + 2;
