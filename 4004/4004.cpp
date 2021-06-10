@@ -213,6 +213,8 @@ void Intel4004::RAL()
     carryFlag = accumulator & 0b1000;
     accumulator = accumulator << 1;
     accumulator = accumulator + tempCarryFlag;
+    //reset bits 4-7
+    accumulator &= ~(0b11110000);
     ticks++;
 }
 
