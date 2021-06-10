@@ -9,6 +9,7 @@ Folder | Usage
 docs | documentaion on Intel400x
 inc | source files for Intel400x
 not_in_use | temp folder containing files that are currently unused
+src | contains main.cpp
 
 ## Authors
 * David Felder / [github](https://github.com/screetox)
