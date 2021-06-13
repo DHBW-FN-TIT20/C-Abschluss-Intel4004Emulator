@@ -1,7 +1,7 @@
 #ifndef _MCS4BaseClasses_h_
 #define _MCS4BaseClasses_h_
 
-#include "400x_GlobalDefines.h"
+#include <400x_GlobalDefines.h>
 
 #include<cstdint>
 
@@ -158,61 +158,65 @@ public:
 	/**
 	 * Ist die RAM Adresse vorhanden.
 	 * Falls nicht wird false zurückgegeben
-	 * @param bank Bank
-	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
+	 * @param bank Bank 0...7
+	 * @param chip Chip 0...3
 	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
 	 */
-	virtual bool isRAMAdrAccessable(const ERAMBank bank, const ERAMChip chip,
-			const int address) const = 0;
+	virtual bool isRAMAdrAccessable(const ERAMBank bank,
+			const ERAMChip chips) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
-	 * @param bank Bank
-	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
+	 * @param bank Bank 0...7
+	 * @param chip Chip 0...3
+	 * @param ramregister Register 0...3
+	 * @param nibbleaddress Speicherzellenaddresse 0...15
 	 * @return Wert
 	 */
 	virtual uint4_t readRAMNibble(const ERAMBank bank, const ERAMChip chip,
-			const int address) const = 0;
+			const ERAMRegister ramregister, const int nibbleaddress) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
-	 * @param bank Bank
-	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
+	 * @param bank Bank 0...7
+	 * @param chip Chip 0...3
+	 * @param ramregister Register 0...3
+	 * @param nibbleaddress Speicherzellenaddresse 0...15
 	 * @param value Wert
 	 * @return Ob an dieser Stelle schreibbar war
 	 */
 	virtual bool writeRAMNibble(const ERAMBank bank, const ERAMChip chip,
-			const int address, const uint4_t value) const = 0;
+			const ERAMRegister ramregister, const int nibbleaddress,
+			const uint4_t value) = 0;
 	/**
 	 * Ist die Status Adresse vorhanden.
 	 * Falls nicht wird false zurückgegeben
-	 * @param bank Bank
-	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
+	 * @param bank Bank 0...7
+	 * @param chip Chip 0...3
 	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
 	 */
-	virtual bool isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip,
-			const int address) const = 0;
+	virtual bool isStatusAdrAccessable(const ERAMBank bank,
+			const ERAMChip chip) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
-	 * @param bank Bank
-	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
+	 * @param bank Bank 0...7
+	 * @param chip Chip 0...3
+	 * @param ramregister Register 0...3
+	 * @param nibbleaddress Speicherzellenaddresse 0...3
 	 * @return Wert
 	 */
 	virtual uint4_t readStatusNibble(const ERAMBank bank, const ERAMChip chip,
-			const int address) const = 0;
+			const ERAMRegister ramregister, const int nibbleaddress) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
-	 * @param bank Bank
-	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
+	 * @param bank Bank 0...7
+	 * @param chip Chip 0...3
+	 * @param ramregister Register 0...3
+	 * @param nibbleaddress Speicherzellenaddresse 0...3
 	 * @param value Wert
 	 * @return Ob an dieser Stelle schreibbar war
 	 */
 	virtual bool writeStatusNibble(const ERAMBank bank, const ERAMChip chip,
-			const int address, const uint4_t value) const = 0;
+			const ERAMRegister ramregister, const int nibbleaddress,
+			const uint4_t value) = 0;
 	/**
 	 * Liest ein Nibble aus dem Ausgangspuffer
 	 * @param bank Bank
@@ -229,7 +233,8 @@ public:
 	 * @param command Kommando aus der Befehlsablaufsteuerung
 	 * @return Erkannter Befehl
 	 */
-	virtual ERAMCommand nextCommand(Intel4004Base *ptr,	const UCommand command) = 0;
+	virtual ERAMCommand nextCommand(Intel4004Base *ptr,
+			const UCommand command) = 0;
 #endif
 };
 
@@ -345,7 +350,8 @@ public:
  * @param installed_RAM_Chips Format installierte RAM Bits 8Bänke a 4Chips (Bit0->Bank0,Chip0, Bit1->Bank0,Chip1, Bit3->Bank0,Chip2, ... Bit31->Bank7,Chip4).
  * @return Instanz der eigenen Applikation die die Basiklasse Intel4002Base implementiert
  */
-extern Intel4002Base *get4002Instance(const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
+extern Intel4002Base* get4002Instance(const uint32_t installed_RAM_Chips =
+		0xFFFFFFFF);
 #endif
 
 /**
@@ -354,5 +360,6 @@ extern Intel4002Base *get4002Instance(const uint32_t installed_RAM_Chips = 0xFFF
  * @param installed_RAM_Chips Format installierte RAM Bits 8Bänke a 4Chips (Bit0->Bank0,Chip0, Bit1->Bank0,Chip1, Bit3->Bank0,Chip2, ... Bit31->Bank7,Chip4).
  * @return Instanz der eigenen Applikation die die Basiklasse Intel4004Base implementiert
  */
-extern Intel4004Base *get4004Instance(const uint16_t installed_ROM_Chips = 0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
+extern Intel4004Base* get4004Instance(const uint16_t installed_ROM_Chips =
+		0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
 #endif
