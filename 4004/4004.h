@@ -28,7 +28,7 @@ public:
 	/**
 	 * Konstruktor
 	 */
-	Intel4004(const uint16_t installed_banks = 0xFFFF, const uint32_t installedChips = 0xFFFFFFFF);
+	Intel4004(const uint16_t installed_ROM_Chips = 0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
 	/**
 	 * Destruktor
 	 */

@@ -13,11 +13,11 @@
 using namespace std;
 
 
-Intel4004::Intel4004(const uint16_t installed_banks, const uint32_t installedChips)
+Intel4004::Intel4004(const uint16_t installed_ROM_Chips, const uint32_t installed_RAM_Chips)
 {
     registers = new uint4_t[MAX_NUMBER_OF_REGISTERS]();
-    ROM = new Intel4001(installed_banks);
-    RAM = new Intel4002(installedChips);
+    ROM = new Intel4001(installed_ROM_Chips);
+    RAM = new Intel4002(installed_RAM_Chips);
     stack = new Intel4004Stack();
 }
 
@@ -112,6 +112,7 @@ void Intel4004::nextCommand()
 {
     //read command from rom
     UCommand command;
+    UCommand secondWord;
     command.data = ROM->read(PC);
     PC.inc();
     switch (command.nibble.opr)
@@ -120,7 +121,6 @@ void Intel4004::nextCommand()
         NOP();
         break;
     case 0x1:
-        UCommand secondWord;
         secondWord.data = ROM->read(PC);
         PC.inc();
         JCN(command, secondWord);
@@ -133,7 +133,6 @@ void Intel4004::nextCommand()
         }
         else
         {
-            UCommand secondWord;
             secondWord.data = ROM->read(PC);
             PC.inc();
             FIM(command, secondWord);
@@ -151,21 +150,18 @@ void Intel4004::nextCommand()
         }
         break;
     case 0x4:
-        UCommand secondWord;
         secondWord.data = ROM->read(PC);
         PC.inc();
         JUN(command, secondWord);
         break;
     case 0x5:
-        UCommand secondWord;
         secondWord.data = ROM->read(PC);
         PC.inc();
         JMS(command, secondWord);
     case 0x6:
         INC(command);
         break;
-    case 0x7:       
-        UCommand secondWord;
+    case 0x7:
         secondWord.data = ROM->read(PC);
         PC.inc();
         ISZ(command, secondWord);
@@ -616,9 +612,13 @@ void Intel4004::ISZ(UCommand byte1, UCommand byte2)
 void Intel4004::FIM(UCommand byte1, UCommand byte2)
 {
     // todo vgl. mit FIN wegen ">> 1" und "*2"
+    // 14.6. changed byte1 to byte2 (+2 lines)
     uint4_t designatedRegister = byte1.nibble.opa;
-    registers[designatedRegister] = byte1.nibble.opr;
-    registers[designatedRegister + 1] = byte1.nibble.opa;
+    registers[designatedRegister] = byte2.nibble.opr;
+    registers[designatedRegister + 1] = byte2.nibble.opa;
     ticks = ticks + 2;
 }
 
+Intel4004Base* get4004Instance(const uint16_t installed_ROM_Chips, const uint32_t installed_RAM_Chips) {
+	return new Intel4004(installed_ROM_Chips, installed_RAM_Chips);
+}

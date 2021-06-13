@@ -94,6 +94,8 @@ uint4_t Intel4001::readFromPort(const EROMChip chip) const {
 bool Intel4001::writeToPort(const EROMChip chip, const uint4_t value) {
     if(INSTALLEDROM[chip])
         PORTS[chip] = value;
+        return true;
+    return false;
 }
 
 void Intel4001::clearROMWhoIsNotInstalled() {

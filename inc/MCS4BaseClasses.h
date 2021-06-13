@@ -1,7 +1,7 @@
 #ifndef _MCS4BaseClasses_h_
 #define _MCS4BaseClasses_h_
 
-#include <400x_GlobalDefines.h>
+#include "400x_GlobalDefines.h"
 
 #include<cstdint>
 
@@ -162,8 +162,7 @@ public:
 	 * @param chip Chip 0...3
 	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
 	 */
-	virtual bool isRAMAdrAccessable(const ERAMBank bank,
-			const ERAMChip chips) const = 0;
+	virtual bool isRAMAdrAccessable(const ERAMBank bank, const ERAMChip chips) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
 	 * @param bank Bank 0...7
@@ -172,8 +171,7 @@ public:
 	 * @param nibbleaddress Speicherzellenaddresse 0...15
 	 * @return Wert
 	 */
-	virtual uint4_t readRAMNibble(const ERAMBank bank, const ERAMChip chip,
-			const ERAMRegister ramregister, const int nibbleaddress) const = 0;
+	virtual uint4_t readRAMNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
 	 * @param bank Bank 0...7
@@ -183,9 +181,7 @@ public:
 	 * @param value Wert
 	 * @return Ob an dieser Stelle schreibbar war
 	 */
-	virtual bool writeRAMNibble(const ERAMBank bank, const ERAMChip chip,
-			const ERAMRegister ramregister, const int nibbleaddress,
-			const uint4_t value) = 0;
+	virtual bool writeRAMNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value) = 0;
 	/**
 	 * Ist die Status Adresse vorhanden.
 	 * Falls nicht wird false zurückgegeben
@@ -193,8 +189,7 @@ public:
 	 * @param chip Chip 0...3
 	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
 	 */
-	virtual bool isStatusAdrAccessable(const ERAMBank bank,
-			const ERAMChip chip) const = 0;
+	virtual bool isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
 	 * @param bank Bank 0...7
@@ -203,8 +198,7 @@ public:
 	 * @param nibbleaddress Speicherzellenaddresse 0...3
 	 * @return Wert
 	 */
-	virtual uint4_t readStatusNibble(const ERAMBank bank, const ERAMChip chip,
-			const ERAMRegister ramregister, const int nibbleaddress) const = 0;
+	virtual uint4_t readStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const = 0;
 	/**
 	 * Ein Nibble an der derzeit angeforderten Adresse
 	 * @param bank Bank 0...7
@@ -214,17 +208,14 @@ public:
 	 * @param value Wert
 	 * @return Ob an dieser Stelle schreibbar war
 	 */
-	virtual bool writeStatusNibble(const ERAMBank bank, const ERAMChip chip,
-			const ERAMRegister ramregister, const int nibbleaddress,
-			const uint4_t value) = 0;
+	virtual bool writeStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value) = 0;
 	/**
 	 * Liest ein Nibble aus dem Ausgangspuffer
 	 * @param bank Bank
 	 * @param chip Chip
 	 * @return Wert
 	 */
-	virtual uint4_t readFromPortBuffer(const ERAMBank bank,
-			const ERAMChip chip) const = 0;
+	virtual uint4_t readFromPortBuffer(const ERAMBank bank, const ERAMChip chip) const = 0;
 
 #ifdef _RAM_SPLITOFF_
 	/**
