@@ -25,7 +25,7 @@ public:
 	/**
 	 * Konstruktor
 	 */
-	Intel4002(const uint32_t installedChips = 0xFFFF);
+	Intel4002(const uint32_t installedChips = 0xFFFFFFFF);
 	/**
 	 * Destruktor
 	 */

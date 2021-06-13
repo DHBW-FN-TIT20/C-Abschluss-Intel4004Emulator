@@ -7,23 +7,40 @@
 #include "4004.h"
 
 // Include gloabl header files
+#include <cstring>
 
 // Declaring namespaces
 using namespace std;
 
 
-Intel4004::Intel4004()
+Intel4004::Intel4004(const uint16_t installed_banks, const uint32_t installedChips)
 {
-    
+    registers = new uint4_t[MAX_NUMBER_OF_REGISTERS]();
+    ROM = new Intel4001(installed_banks);
+    RAM = new Intel4002(installedChips);
+    stack = new Intel4004Stack();
 }
 
 Intel4004::~Intel4004()
 {
-    
+    delete[] registers;
+    delete[] ROM;
+    delete[] RAM;
+    delete[] stack;
 }
 
 void Intel4004::reset()
 {
+    carryFlag = 0;
+	testPin = 0;
+	accumulator = 0;
+	ticks = 0;
+	PC = 0;
+	memset(registers, 0, MAX_NUMBER_OF_REGISTERS);
+	ROM->reset();
+	RAM->reset();
+	stack->reset();
+
     // "A RESET causes DATA RAM BANK 0 to be selected" - MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf, p.3-49
 }
 
