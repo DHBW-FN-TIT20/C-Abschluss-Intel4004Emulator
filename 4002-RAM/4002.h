@@ -153,10 +153,15 @@ public:
 		 */
 		//virtual ERAMChip getCurrentChip() const;
 	/**
+	 * Setzt das aktuelle Register
+	 * @param reg Register
+	 */
+	virtual void setCurrentRegister(const ERAMRegister reg);
+	/**
 	 * Setzt die aktuelle Adresse
 	 * @param address Adresse
 	 */
-	virtual void setCurrentAddress(const int address);
+	virtual void setCurrentNibbleAddress(const int address);
 		/**
 		 * Gibt die aktuelle Adresse zurück
 		 * @return currentAddress

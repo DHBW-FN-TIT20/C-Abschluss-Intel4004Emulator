@@ -258,21 +258,9 @@ private:
 	 */
 	void RDM();
 	/**
-	 * Read RAM status character 0
+	 * Read RAM status character 0-3
 	 */
-	void RD0();
-	/**
-	 * Read RAM status character 1
-	 */
-	void RD1();
-	/**
-	 * Read RAM status character 2
-	 */
-	void RD2();
-	/**
-	 * Read RAM status character 3
-	 */
-	void RD3();
+	void RDn(UCommand command);
 	/**
 	 * Read ROM port
 	 */
@@ -282,21 +270,9 @@ private:
 	 */
 	void WRM();
 	/**
-	 * Write accumulator into RAM status character 0
+	 * Write accumulator into RAM status character 0-3
 	 */
-	void WR0();
-	/**
-	 * Write accumulator into RAM status character 1
-	 */
-	void WR1();
-	/**
-	 * Write accumulator into RAM status character 2
-	 */
-	void WR2();
-	/**
-	 * Write accumulator into RAM status character 3
-	 */
-	void WR3();
+	void WRn(UCommand command);
 	/**
 	 * Write Program RAM
 	 */

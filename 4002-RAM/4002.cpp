@@ -171,10 +171,12 @@ void Intel4002::setCurrentChip(const ERAMChip chip) {
 //     return currentChip;
 // }
 
-void Intel4002::setCurrentAddress(const int address) {
-    if (0 <= address && address < RAM_CELLS_EACH_REGISTER) {
-        currentNibbleAddress = address;
-    }
+void Intel4002::setCurrentRegister(const ERAMRegister reg) {
+    currentRegister = reg;
+}
+
+void Intel4002::setCurrentNibbleAddress(const int address) {
+    currentNibbleAddress = (address & 0b1111);
 }
 
 // int Intel4002::getCurrentAddress() const {

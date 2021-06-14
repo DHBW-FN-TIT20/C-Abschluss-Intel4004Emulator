@@ -14,7 +14,7 @@
 using namespace std;
 
 
-Intel4001::Intel4001(const uint16_t installed_banks) : installed_banks(installed_banks), ROM(nullptr), INSTALLEDROM(nullptr), PORTS(nullptr) {
+Intel4001::Intel4001(const uint16_t installed_banks) : installed_banks(installed_banks), currentChip(ROMCHIP0), ROM(nullptr), INSTALLEDROM(nullptr), PORTS(nullptr) {
 
     ROM = new uint8_t[ROM_MEMORY_SIZE];
     INSTALLEDROM = new bool[MAX_NUMBER_OF_ROM_CHIPS];
@@ -39,6 +39,7 @@ void Intel4001::reset() {
 
     memset(ROM, 0, ROM_MEMORY_SIZE);
     memset(PORTS, 0, MAX_NUMBER_OF_ROM_CHIPS);
+    currentChip = ROMCHIP0;
 }
 
 uint16_t Intel4001::getEnabledBank() const {
@@ -117,4 +118,12 @@ void Intel4001::setCurrentChip(const EROMChip chip) {
 
 EROMChip Intel4001::getCurrentChip() const {
     return currentChip;
+}
+
+uint4_t Intel4001::readPort() const {
+    return readFromPort(currentChip);
+}
+
+bool Intel4001::writePort(const uint4_t value) {
+    return writeToPort(currentChip, value);
 }

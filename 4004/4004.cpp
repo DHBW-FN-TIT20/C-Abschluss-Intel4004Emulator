@@ -199,16 +199,10 @@ void Intel4004::nextCommand()
             WPM();
             break;
         case 0x4:
-            WR0();
-            break;
         case 0x5:
-            WR1();
-            break;
         case 0x6:
-            WR2();
-            break;
         case 0x7:
-            WR3();
+            WRn(command);
             break;
         case 0x8:
             SBM();
@@ -223,16 +217,10 @@ void Intel4004::nextCommand()
             ADM();
             break;
         case 0xC:
-            RD0();
-            break;
         case 0xD:
-            RD1();
-            break;
         case 0xE:
-            RD2();
-            break;
         case 0xF:
-            RD3();
+            RDn(command);
             break;                
         default:
             break;
@@ -384,7 +372,8 @@ void Intel4004::SRC(UCommand command)
     uint4_t registerPair = (command.nibble.opa >> 1) & 0b0111;
     uint8_t valueOfRegisterPair = getRegisterPair(ERegister(registerPair));
     RAM->setCurrentChip(ERAMChip(valueOfRegisterPair >> 6));
-    RAM->setCurrentAddress(valueOfRegisterPair & 0b00111111);
+    RAM->setCurrentRegister(ERAMRegister((valueOfRegisterPair >> 4) & 0b11));
+    RAM->setCurrentNibbleAddress(valueOfRegisterPair & 0b1111);
     ROM->setCurrentChip(EROMChip(valueOfRegisterPair >> 4));
     ticks++;
 }
@@ -529,24 +518,26 @@ void Intel4004::KBP()
 
 void Intel4004::DCL()
 {
-    uint4_t n = (accumulator & 0b0111);
-    if (n == 0b0000) {
-        RAM->setCurrentBank(BANK0);
-    } else if (n == 0b0001) {
-        RAM->setCurrentBank(BANK1);
-    } else if (n == 0b0010) {
-        RAM->setCurrentBank(BANK2);
-    } else if (n == 0b0011) {
-        RAM->setCurrentBank(BANK3);
-    } else if (n == 0b0100) {
-        RAM->setCurrentBank(BANK4);
-    } else if (n == 0b0101) {
-        RAM->setCurrentBank(BANK5);
-    } else if (n == 0b0110) {
-        RAM->setCurrentBank(BANK6);
-    } else if (n == 0b0111) {
-        RAM->setCurrentBank(BANK7);
-    }
+    RAM->setCurrentBank(ERAMBank(accumulator & 0b0111));
+    //uint4_t n = (accumulator & 0b0111);
+    // if (n == 0b0000) {
+    //     RAM->setCurrentBank(BANK0);
+    // } else if (n == 0b0001) {
+    //     RAM->setCurrentBank(BANK1);
+    // } else if (n == 0b0010) {
+    //     RAM->setCurrentBank(BANK2);
+    // } else if (n == 0b0011) {
+    //     RAM->setCurrentBank(BANK3);
+    // } else if (n == 0b0100) {
+    //     RAM->setCurrentBank(BANK4);
+    // } else if (n == 0b0101) {
+    //     RAM->setCurrentBank(BANK5);
+    // } else if (n == 0b0110) {
+    //     RAM->setCurrentBank(BANK6);
+    // } else if (n == 0b0111) {
+    //     RAM->setCurrentBank(BANK7);
+    // }
+    ticks++;
 }
 
 
@@ -573,28 +564,31 @@ void Intel4004::JCN(UCommand byte1, UCommand byte2)
 {
     uint4_t jumpCondition = byte1.nibble.opa;
     bool jumpBool = false;
+    uint4_t caseAccuAndTest = 0;
+    uint4_t caseCarry = 1;
+
+    if (jumpCondition & 0b1000) {
+        caseAccuAndTest = 1;
+        caseCarry = 0;
+    }
 
     if (jumpCondition & 0b0100) {
-        if (accumulator = 0) {
+        if (accumulator == caseAccuAndTest) {
             jumpBool = true;
         }
     }
     if (jumpCondition & 0b0010) {
-        if (carryFlag = 1) {
+        if (carryFlag == caseCarry) {
             jumpBool = true;
         }
     }
     if (jumpCondition & 0b0001) {
-        if (testPin = 0) {
+        if (testPin == caseAccuAndTest) {
             jumpBool = true;
         }
     }
 
-    if (jumpCondition & 0b1000) {
-        jumpBool = not jumpBool;
-    }
-
-    if (jumpBool = true) {
+    if (jumpBool) {
         PC.banked.address = byte2.data;
     }
     ticks = ticks + 2;
@@ -613,10 +607,65 @@ void Intel4004::FIM(UCommand byte1, UCommand byte2)
 {
     // todo vgl. mit FIN wegen ">> 1" und "*2"
     // 14.6. changed byte1 to byte2 (+2 lines)
-    uint4_t designatedRegister = byte1.nibble.opa;
+    uint4_t designatedRegister = ((byte1.nibble.opa >> 1) & 0b0111) * 2;
     registers[designatedRegister] = byte2.nibble.opr;
     registers[designatedRegister + 1] = byte2.nibble.opa;
     ticks = ticks + 2;
+}
+
+//RAM Instructions
+void Intel4004::RDM() {
+    accumulator = RAM->readRAM();
+    ticks++;
+}
+
+void Intel4004::RDn(UCommand command) {
+    accumulator = RAM->readStatus((command.nibble.opa & 0b11));
+    ticks++;
+}
+
+void Intel4004::RDR() {
+    accumulator = ROM->readPort();
+    ticks++;
+}
+
+void Intel4004::WRM() {
+    RAM->writeRAM(accumulator);
+    ticks++;
+}
+
+void Intel4004::WRn(UCommand command) {
+    RAM->writeStatus((command.nibble.opa & 0b11), accumulator);
+    ticks++;
+}
+
+void Intel4004::WPM() {
+    // No function because irrelevant???
+    ticks++;
+}
+
+void Intel4004::WRR() {
+    ROM->writePort(accumulator);
+    ticks++;
+}
+
+void Intel4004::WMP() {
+    RAM->writePortBuffer(accumulator);
+    ticks++;
+}
+
+void Intel4004::ADM() {
+    uint8_t result = accumulator + RAM->readRAM() + carryFlag;
+    accumulator = result & 0b1111;
+    carryFlag = (result >> 4) & 0b1;
+    ticks++;
+}
+
+void Intel4004::SBM() {
+    uint8_t result = accumulator + (RAM->readRAM() ^ 0b1111) + !carryFlag;
+    accumulator = result & 0b1111;
+    carryFlag = !((result >> 4) & 0b1);
+    ticks++;
 }
 
 Intel4004Base* get4004Instance(const uint16_t installed_ROM_Chips, const uint32_t installed_RAM_Chips) {
