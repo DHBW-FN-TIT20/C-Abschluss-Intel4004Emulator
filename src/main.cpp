@@ -80,4 +80,22 @@ void functionTestIntel4002() {
 
 void functionTestIntel4004() {
     Intel4004 test();
+    Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+    processor->getPtrToROM()->writeFromIntelHexFile(".\\..\\Assembler-Examples\\add.hex");
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+    processor->nextCommand();
+
+    uint8_t value = processor->getRegisterPair(Pair_R5_R4);
+    if(value == 116){
+        cout << "Funktioniert" << endl;
+    }
+    cout << (int)value << endl; //ist ein scheiß, da printet der nämlich eine 0 statt 116
 }
