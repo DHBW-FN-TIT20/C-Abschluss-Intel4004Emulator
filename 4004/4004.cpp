@@ -363,7 +363,7 @@ void Intel4004::JIN(UCommand command)
 {
     //Get the 3 bits for registerpair
     uint4_t registerPair = (command.nibble.opa >> 1) & 0b0111;
-    uint8_t valueOfRegisterPair = getRegisterPair(ERegister(registerPair));
+    uint8_t valueOfRegisterPair = getRegisterPair(ERegister(registerPair * 2));
     PC.banked.address = valueOfRegisterPair;
     ticks++;
 }
