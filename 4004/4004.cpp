@@ -19,6 +19,7 @@ Intel4004::Intel4004(const uint16_t installed_ROM_Chips, const uint32_t installe
     ROM = new Intel4001(installed_ROM_Chips);
     RAM = new Intel4002(installed_RAM_Chips);
     stack = new Intel4004Stack();
+    reset();
 }
 
 Intel4004::~Intel4004()
@@ -361,7 +362,7 @@ void Intel4004::JIN(UCommand command)
 {
     //Get the 3 bits for registerpair
     uint4_t registerPair = (command.nibble.opa >> 1) & 0b0111;
-    uint8_t valueOfRegisterPair = getRegisterPair(ERegister(registerPair));
+    uint8_t valueOfRegisterPair = getRegisterPair(ERegister(registerPair * 2));
     PC.banked.address = valueOfRegisterPair;
     ticks++;
 }
