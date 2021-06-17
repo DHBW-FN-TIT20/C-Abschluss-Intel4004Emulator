@@ -19,6 +19,7 @@ Intel4004::Intel4004(const uint16_t installed_ROM_Chips, const uint32_t installe
     ROM = new Intel4001(installed_ROM_Chips);
     RAM = new Intel4002(installed_RAM_Chips);
     stack = new Intel4004Stack();
+    reset();
 }
 
 Intel4004::~Intel4004()
@@ -183,6 +184,7 @@ void Intel4004::nextCommand()
         break;
     case 0xD:
         LDM(command);
+        break;
     case 0xE:
         switch (command.nibble.opa)
         {
@@ -474,6 +476,7 @@ void Intel4004::DAA()
 {
     if ((accumulator > 9) or (carryFlag)) {
         accumulator += 6;
+        accumulator &= ~(0b11110000);
         if (accumulator < 6) {
             carryFlag = true;
         }
@@ -484,9 +487,9 @@ void Intel4004::DAA()
 void Intel4004::TCS()
 {
     if (carryFlag) {
-        accumulator = 0b1010;
+        accumulator = 0b00001010;
     } else {
-        accumulator = 0b1001;
+        accumulator = 0b00001001;
     }
     carryFlag = false;
     ticks++;
@@ -502,23 +505,23 @@ void Intel4004::KBP()
         }
     if (count > 1) {
         accumulator = 0b1111;
-    } else if (accumulator & 0b0001) {
+    } else if (accumulator & 0b00000001) {
         accumulator = 0b0001;
-    } else if (accumulator & 0b0010) {
+    } else if (accumulator & 0b00000010) {
         accumulator = 0b0010;
-    } else if (accumulator & 0b0100) {
+    } else if (accumulator & 0b00000100) {
         accumulator = 0b0011;
-    } else if (accumulator & 0b1000) {
-        accumulator = 0b0100;
+    } else if (accumulator & 0b00001000) {
+        accumulator = 0b00000100;
     } else {
-        accumulator = 0b0000;
+        accumulator = 0b00000000;
     }
     ticks++;
 }
 
 void Intel4004::DCL()
 {
-    RAM->setCurrentBank(ERAMBank(accumulator & 0b0111));
+    RAM->setCurrentBank(ERAMBank(accumulator & 0b00000111));
     //uint4_t n = (accumulator & 0b0111);
     // if (n == 0b0000) {
     //     RAM->setCurrentBank(BANK0);
