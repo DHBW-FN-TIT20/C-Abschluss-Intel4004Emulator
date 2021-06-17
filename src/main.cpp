@@ -81,21 +81,17 @@ void functionTestIntel4002() {
 void functionTestIntel4004() {
     Intel4004 test();
     Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
-    processor->getPtrToROM()->writeFromIntelHexFile(".\\..\\Assembler-Examples\\add.hex");
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-    processor->nextCommand();
-
-    uint8_t value = processor->getRegisterPair(Pair_R5_R4);
-    if(value == 116){
-        cout << "Funktioniert" << endl;
+    processor->getPtrToROM()->writeFromIntelHexFile(".\\..\\Assembler-Examples\\P1.hex");
+    // for (int i = 0; i < 1000; i++) {
+    //     processor->nextCommand();
+    // }
+    while(processor->getTicks() < 390 ){
+        processor->nextCommand();
     }
-    cout << (int)value << endl; //ist ein scheiß, da printet der nämlich eine 0 statt 116
+
+    uint4_t value = processor->getPtrToRAM()->readRAMNibble(BANK0,CHIP0, REG3, 15);
+    cout << (int)value << endl;
+    cout << (int)processor->getTicks() << endl;
 }
+
+// g++ main.cpp ..\inc\intelhex.c ..\4001-ROM\4001.cpp ..\4002-RAM\4002.cpp ..\4004\4004.cpp ..\4004\4004_stack.cpp
