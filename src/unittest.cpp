@@ -881,8 +881,6 @@ TEST_CASE("UnitTest_Intel4004") {
 
         CHECK(processor->getTicks() == 33);
     }
-}
-TEST_CASE("UnitTest_Intel4004_2") {
     SECTION("JMS") {
         /**
          * CMC          1   set carry=1
@@ -910,7 +908,8 @@ TEST_CASE("UnitTest_Intel4004_2") {
         CHECK(processor->getCarry());
         CHECK(processor->getPC().banked.bank == 0x0);
         CHECK(processor->getPC().banked.address == 0x04);
-        UBankedAddress *stackCopy = processor->getPtrToStack()->getCopyOfStack(stackCopy);
+        UBankedAddress *stackCopy = new UBankedAddress[3]();
+        processor->getPtrToStack()->getCopyOfStack(stackCopy);
         CHECK(stackCopy[0].banked.bank == 0x0);
         CHECK(stackCopy[0].banked.address == 0x03);
         // JMS_1 0x21
@@ -922,6 +921,8 @@ TEST_CASE("UnitTest_Intel4004_2") {
         CHECK(stackCopy[0].banked.address == 0x06);
         CHECK(stackCopy[1].banked.bank == 0x0);
         CHECK(stackCopy[1].banked.address == 0x03);
+
+        delete[] stackCopy;
 
         CHECK(processor->getTicks() == 5);
     }
