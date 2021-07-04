@@ -159,6 +159,7 @@ void Intel4004::nextCommand()
         secondWord.data = ROM->read(PC);
         PC.inc();
         JMS(command, secondWord);
+        break;
     case 0x6:
         INC(command);
         break;
@@ -333,7 +334,7 @@ void Intel4004::SUB(UCommand command)
     //Create ones complement
     registerValue ^= 0b1111;
     accumulator = accumulator + registerValue + !carryFlag; 
-    carryFlag = !(accumulator >> 4);
+    carryFlag = accumulator >> 4;
     //reset bits 4-7
     accumulator &= ~(0b11110000);
     ticks++;
@@ -556,8 +557,7 @@ void Intel4004::JUN(UCommand byte1, UCommand byte2)
 
 void Intel4004::JMS(UCommand byte1, UCommand byte2)
 {
-    UBankedAddress returnAddress = PC.inc();
-    stack->push(returnAddress);
+    stack->push(PC);
     PC.banked.bank = byte1.nibble.opa;
     PC.banked.address = byte2.data;
     ticks = ticks + 2;
