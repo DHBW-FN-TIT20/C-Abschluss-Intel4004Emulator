@@ -132,7 +132,7 @@ bool Intel4002::writeRAM(const uint4_t value) {
 }
 
 uint4_t Intel4002::readStatus(const int address) {
-    return readStatusNibble(currentBank, currentChip, currentRegister, (address % 0b11));
+    return readStatusNibble(currentBank, currentChip, currentRegister, (address & 0b11));
 }
 
 bool Intel4002::writeStatus(const int address, const uint4_t value) {
