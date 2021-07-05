@@ -372,7 +372,7 @@ void Intel4004::JIN(UCommand command)
 void Intel4004::SRC(UCommand command)
 {
     //Get the 3 bits for registerpair
-    uint4_t registerPair = (command.nibble.opa >> 1) & 0b0111;
+    uint4_t registerPair = ((command.nibble.opa >> 1) & 0b0111) * 2;
     uint8_t valueOfRegisterPair = getRegisterPair(ERegister(registerPair));
     RAM->setCurrentChip(ERAMChip(valueOfRegisterPair >> 6));
     RAM->setCurrentRegister(ERAMRegister((valueOfRegisterPair >> 4) & 0b11));
@@ -643,7 +643,7 @@ void Intel4004::WRn(UCommand command) {
 }
 
 void Intel4004::WPM() {
-    // No function because irrelevant???
+    // No function because irrelevant
     ticks++;
 }
 
@@ -667,7 +667,7 @@ void Intel4004::ADM() {
 void Intel4004::SBM() {
     uint8_t result = accumulator + (RAM->readRAM() ^ 0b1111) + !carryFlag;
     accumulator = result & 0b1111;
-    carryFlag = !((result >> 4) & 0b1);
+    carryFlag = ((result >> 4) & 0b1);
     ticks++;
 }
 

@@ -260,7 +260,7 @@ typedef enum : uint8_t {
     DCL
 } COMMAND;
 
-TEST_CASE("UnitTest_Intel4004") {
+TEST_CASE("UnitTest_Intel4004_Mnemonics") {
     SECTION("NOP") {
         /**
          * NOP          1
@@ -2214,38 +2214,1188 @@ TEST_CASE("UnitTest_Intel4004") {
         CHECK(processor->getTicks() == 26);
     }
     SECTION("SRC") {
+        /**
+         * LDM_5        1
+         * FIM_0 0x00   1
+         * FIM_2 0x51   1
+         * FIM_4 0xA2   1
+         * FIM_6 0xF3   1
+         * FIM_8 0x00   1
+         * FIM_10 0x51  1
+         * FIM_12 0xA2  1
+         * FIM_14 0xF3  1
+         * SRC_0-14     1
+         * WRM          1
+         * WR0          1
+         * WMP          1
+         * WRR          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_5, FIM_0, 0x00, FIM_2, 0x51, FIM_4, 0xA2, FIM_6, 0xF3, FIM_8, 0x00, FIM_10, 0x51, FIM_12, 0xA2, FIM_14, 0xF3, SRC_0, WRM, WR0, WMP, WRR, SRC_2, WRM, WR0, WMP, WRR, SRC_4, WRM, WR0, WMP, WRR, SRC_6, WRM, WR0, WMP, WRR, SRC_8, WRM, WR0, WMP, WRR, SRC_10, WRM, WR0, WMP, WRR, SRC_12, WRM, WR0, WMP, WRR, SRC_14, WRM, WR0, WMP, WRR, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 58);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_5
+        processor->nextCommand();
+        // FIM_0 0x00
+        processor->nextCommand();
+        // FIM_2 0x51
+        processor->nextCommand();
+        // FIM_4 0xA2
+        processor->nextCommand();
+        // FIM_6 0xF3
+        processor->nextCommand();
+        // FIM_8 0x00
+        processor->nextCommand();
+        // FIM_10 0x51
+        processor->nextCommand();
+        // FIM_12 0xA2
+        processor->nextCommand();
+        // FIM_14 0xF3
+        processor->nextCommand();
+        // SRC_0-14
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 4; j++) {
+                // SRC 0-14
+                processor->nextCommand();
+                // WRM
+                processor->nextCommand();
+                // WR0
+                processor->nextCommand();
+                // WMP
+                processor->nextCommand();
+                // WRR
+                processor->nextCommand();
+                CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, (ERAMChip) j, (ERAMRegister) j, j) == 5);
+                CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, (ERAMChip) j, (ERAMRegister) j, 0) == 5);
+                CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, (ERAMChip) j) == 5);
+                CHECK(processor->getPtrToROM()->readFromPort((EROMChip) ((j << 2) + j)) == 5);
+            }
+        }
+
+        CHECK(processor->getTicks() == 57);
     }
     SECTION("WRM") {
+        /**
+         * FIM_0 0x36   1
+         * SRC_0        1
+         * LDM_15       1
+         * WRM          1
+         * LDM_6        1
+         * STC          1
+         * WRM          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WRM          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_0, 0x36, SRC_0, LDM_15, WRM, LDM_6, STC, WRM, FIM_0, 0xFF, SRC_0, WRM, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // FIM_0 0x36
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_15
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_6
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x6);
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 15) == 0x6);
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("WMP") {
+        /**
+         * FIM_0 0x36   1
+         * SRC_0        1
+         * LDM_15       1
+         * WMP          1
+         * LDM_6        1
+         * STC          1
+         * WMP          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WMP          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_0, 0x36, SRC_0, LDM_15, WMP, LDM_6, STC, WMP, FIM_0, 0xFF, SRC_0, WMP, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // FIM_0 0x36
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_15
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // WMP
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, CHIP0) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_6
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x6);
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // WMP
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, CHIP0) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WMP
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, CHIP3) == 0x6);
+        CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, CHIP0) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("WRR") {
+        /**
+         * FIM_0 0x36   1
+         * SRC_0        1
+         * LDM_15       1
+         * WRR          1
+         * LDM_6        1
+         * STC          1
+         * WRR          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WRR          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_0, 0x36, SRC_0, LDM_15, WRR, LDM_6, STC, WRR, FIM_0, 0xFF, SRC_0, WRR, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // FIM_0 0x36
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_15
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // WRR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_6
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x6);
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // WRR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WRR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP15) == 0x6);
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("WPM") {
+        /**
+         * LDM_5        1
+         * WPM          1
+         * STC          1
+         * WPM          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_5, WPM, STC, WPM, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 5);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_5
+        processor->nextCommand();
+        // WPM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x0);
+        CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, CHIP0) == 0x0);
+        CHECK(processor->getAccumulator() == 0x5);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // WPM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x0);
+        CHECK(processor->getPtrToRAM()->readFromPortBuffer(BANK0, CHIP0) == 0x0);
+        CHECK(processor->getAccumulator() == 0x5);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 4);
     }
     SECTION("WR0") {
+        /**
+         * LDM_15       1
+         * WR0          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WR0          1
+         * LDM_2        1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * WR0          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR0, STC, FIM_0, 0xFF, SRC_0, WR0, LDM_2, FIM_0, 0x0F, SRC_0, WR0, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 0) == 0xF);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+        // LDM_2
+        processor->nextCommand();
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("WR1") {
+        /**
+         * LDM_15       1
+         * WR1          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WR1          1
+         * LDM_2        1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * WR1          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR1, STC, FIM_0, 0xFF, SRC_0, WR1, LDM_2, FIM_0, 0x0F, SRC_0, WR1, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 1) == 0xF);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+        // LDM_2
+        processor->nextCommand();
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("WR2") {
+        /**
+         * LDM_15       1
+         * WR2          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WR2          1
+         * LDM_2        1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * WR2          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR2, STC, FIM_0, 0xFF, SRC_0, WR2, LDM_2, FIM_0, 0x0F, SRC_0, WR2, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 2) == 0xF);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+        // LDM_2
+        processor->nextCommand();
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("WR3") {
+        /**
+         * LDM_15       1
+         * WR3          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * WR3          1
+         * LDM_2        1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * WR3          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR3, STC, FIM_0, 0xFF, SRC_0, WR3, LDM_2, FIM_0, 0x0F, SRC_0, WR3, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 13);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 3) == 0xF);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+        // LDM_2
+        processor->nextCommand();
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // WR3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 12);
     }
     SECTION("SBM") {
+        /**
+         * LDM_5        1
+         * WRM          1
+         * LDM_8        1
+         * SBM          1
+         * CMC          1
+         * XCH_2        1
+         * FIM_0 0xF3   1
+         * SRC_0        1
+         * LDM_9        1
+         * WRM          1
+         * XCH_2        1
+         * SBM          1
+         * CMC          1
+         * SBM          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_5, WRM, LDM_8, SBM, CMC, XCH_2, FIM_0, 0xF3, SRC_0, LDM_9, WRM, XCH_2, SBM, CMC, SBM, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 16);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_5
+        processor->nextCommand();
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        // LDM_8
+        processor->nextCommand();
+        // SBM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        CHECK(processor->getAccumulator() == 0x3);
+        CHECK(processor->getCarry());
+        // CMC
+        processor->nextCommand();
+        CHECK_FALSE(processor->getCarry());
+        // XCH_2
+        processor->nextCommand();
+        // FIM_0 0xF3
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_9
+        processor->nextCommand();
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 3) == 0x9);
+        // XCH_2
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x3);
+        // SBM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 3) == 0x9);
+        CHECK(processor->getAccumulator() == 0xA);
+        CHECK_FALSE(processor->getCarry());
+        // CMC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // SBM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 3) == 0x9);
+        CHECK(processor->getAccumulator() == 0x0);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 15);
     }
     SECTION("RDM") {
+        /**
+         * FIM_0 0x36   1
+         * SRC_0        1
+         * LDM_15       1
+         * WRM          1
+         * LDM_0        1
+         * RDM          1
+         * LDM_6        1
+         * STC          1
+         * WRM          1
+         * RDM          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * RDM  	    1
+         * LDM_6        1
+         * WRM          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_0, 0x36, SRC_0, LDM_15, WRM, LDM_0, RDM, LDM_6, STC, WRM, LDM_0, RDM, FIM_0, 0xFF, SRC_0, RDM, LDM_6, WRM, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 19);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // FIM_0 0x36
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_15
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RDM
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0xF);
+        // LDM_6
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0xF);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        // RDM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // RDM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0x6);
+        CHECK(processor->getAccumulator() == 0x0);
+        CHECK(processor->getCarry());
+        // LDM_6
+        processor->nextCommand();
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 15) == 0x6);
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 6) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 18);
     }
     SECTION("RDR") {
+        /**
+         * FIM_0 0x36   1
+         * SRC_0        1
+         * LDM_15       1
+         * WRR          1
+         * LDM_0
+         * RDR
+         * LDM_6        1
+         * STC          1
+         * WRR          1
+         * LDM_0
+         * RDR
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * LDM_8
+         * WRR          1
+         * LDM_0
+         * RDR
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_0, 0x36, SRC_0, LDM_15, WRR, LDM_0, RDR, LDM_6, STC, WRR, LDM_0, RDR, FIM_0, 0xFF, SRC_0, LDM_8, WRR, LDM_0, RDR, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 20);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // FIM_0 0x36
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_15
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // WRR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        // RDR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_6
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x6);
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // WRR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        // RDR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0x6);
+        CHECK(processor->getAccumulator() == 0x6);
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_8
+        processor->nextCommand();
+        // WRR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP15) == 0x8);
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0x6);
+        CHECK(processor->getAccumulator() == 0x8);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        // RDR
+        processor->nextCommand();
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP15) == 0x8);
+        CHECK(processor->getPtrToROM()->readFromPort(ROMCHIP3) == 0x6);
+        CHECK(processor->getAccumulator() == 0x8);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 19);
     }
     SECTION("ADM") {
+        /**
+         * LDM_5        1
+         * WRM          1
+         * LDM_10       1
+         * ADM          1
+         * ADM          1
+         * XCH_2        1
+         * FIM_0 0xF3   1
+         * SRC_0        1
+         * LDM_9        1
+         * WRM          1
+         * XCH_2        1
+         * ADM          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_5, WRM, LDM_10, ADM, ADM, XCH_2, FIM_0, 0xF3, SRC_0, LDM_9, WRM, XCH_2, ADM, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 14);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_5
+        processor->nextCommand();
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        // LDM_10
+        processor->nextCommand();
+        // ADM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // ADM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        CHECK(processor->getAccumulator() == 0x4);
+        CHECK(processor->getCarry());
+        // XCH_2
+        processor->nextCommand();
+        // FIM_0 0xF3
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_9
+        processor->nextCommand();
+        // WRM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 3) == 0x9);
+        // XCH_2
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x4);
+        CHECK(processor->getCarry());
+        // ADM
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG0, 0) == 0x5);
+        CHECK(processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP3, REG3, 3) == 0x9);
+        CHECK(processor->getAccumulator() == 0xE);
+        CHECK_FALSE(processor->getCarry());
+
+        CHECK(processor->getTicks() == 13);
     }
     SECTION("RD0") {
+        /**
+         * LDM_15       1
+         * WR0          1
+         * LDM_0        1
+         * RD0          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * LDM_2        1
+         * WR0          1
+         * LDM_0        1
+         * RD0          1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * RD0          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR0, LDM_0, RD0, STC, FIM_0, 0xFF, SRC_0, LDM_2, WR0, LDM_0, RD0, FIM_0, 0x0F, SRC_0, RD0, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 17);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_2
+        processor->nextCommand();
+        // WR0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 0) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 0) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // RD0
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 0) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 0) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 16);
     }
     SECTION("RD1") {
+        /**
+         * LDM_15       1
+         * WR1          1
+         * LDM_0        1
+         * RD1          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * LDM_2        1
+         * WR1          1
+         * LDM_0        1
+         * RD1          1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * RD1          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR1, LDM_0, RD1, STC, FIM_0, 0xFF, SRC_0, LDM_2, WR1, LDM_0, RD1, FIM_0, 0x0F, SRC_0, RD1, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 17);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_2
+        processor->nextCommand();
+        // WR1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 1) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 1) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // RD1
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 1) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 1) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 16);
     }
     SECTION("RD2") {
+        /**
+         * LDM_15       1
+         * WR2          1
+         * LDM_0        1
+         * RD2          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * LDM_2        1
+         * WR2          1
+         * LDM_0        1
+         * RD2          1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * RD2          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR2, LDM_0, RD2, STC, FIM_0, 0xFF, SRC_0, LDM_2, WR2, LDM_0, RD2, FIM_0, 0x0F, SRC_0, RD2, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 17);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_2
+        processor->nextCommand();
+        // WR2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 2) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 2) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // RD2
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 2) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 2) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 16);
     }
     SECTION("RD3") {
+        /**
+         * LDM_15       1
+         * WR3          1
+         * LDM_0        1
+         * RD3          1
+         * STC          1
+         * FIM_0 0xFF   1
+         * SRC_0        1
+         * LDM_2        1
+         * WR3          1
+         * LDM_0        1
+         * RD3          1
+         * FIM_0 0x0F   1
+         * SRC_0        1
+         * RD3          1
+         * NOP          1
+         */
+
+        uint8_t source[] = { LDM_15, WR3, LDM_0, RD3, STC, FIM_0, 0xFF, SRC_0, LDM_2, WR3, LDM_0, RD3, FIM_0, 0x0F, SRC_0, RD3, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 17);
+
+        REQUIRE(processor->getPC().banked.bank == 0x0);
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        // LDM_15
+        processor->nextCommand();
+        // WR3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK_FALSE(processor->getCarry());
+        // STC
+        processor->nextCommand();
+        CHECK(processor->getCarry());
+        // FIM_0 0xFF
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // LDM_2
+        processor->nextCommand();
+        // WR3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 3) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // LDM_0
+        processor->nextCommand();
+        CHECK(processor->getAccumulator() == 0x0);
+        // RD3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 3) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0x2);
+        CHECK(processor->getCarry());
+        // FIM_0 0x0F
+        processor->nextCommand();
+        // SRC_0
+        processor->nextCommand();
+        // RD3
+        processor->nextCommand();
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP3, REG3, 3) == 0x2);
+        CHECK(processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, REG0, 3) == 0xF);
+        CHECK(processor->getAccumulator() == 0xF);
+        CHECK(processor->getCarry());
+
+        CHECK(processor->getTicks() == 16);
     }
 }
 #endif
