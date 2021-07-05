@@ -13,7 +13,7 @@ Intel4002::Intel4002(const uint32_t installedChips) : currentBank(BANK0), curren
     RAMStatus = new uint4_t***[MAX_NUMBER_OF_BANKS]();
     RAMPort = new uint4_t*[MAX_NUMBER_OF_BANKS]();
     INSTALLEDRAM = new bool*[MAX_NUMBER_OF_BANKS]();
-    uint16_t chips = installedChips;
+    uint32_t chips = installedChips;
 
     for (int i = 0; i < MAX_NUMBER_OF_BANKS; i++) {
         RAM[i] = new uint4_t**[MAX_NUMBER_OF_RAM_CHIPS]();
