@@ -43,7 +43,7 @@ void Intel4001::reset() {
 }
 
 uint16_t Intel4001::getEnabledBank() const {
-    return 0;
+    return installed_banks;
 }
 
 void Intel4001::writeFromBinaryFile(const char * const path) {
@@ -87,15 +87,17 @@ uint8_t Intel4001::read(const UBankedAddress address) const {
 }
 
 uint4_t Intel4001::readFromPort(const EROMChip chip) const {
-    if(INSTALLEDROM[chip])
+    if(INSTALLEDROM[chip]) {
         return PORTS[chip];
+    }
     else return 0;
 }
 
 bool Intel4001::writeToPort(const EROMChip chip, const uint4_t value) {
-    if(INSTALLEDROM[chip])
+    if(INSTALLEDROM[chip]) {
         PORTS[chip] = value;
         return true;
+    }
     return false;
 }
 
