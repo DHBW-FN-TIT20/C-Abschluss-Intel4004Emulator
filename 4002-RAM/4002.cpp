@@ -100,14 +100,14 @@ bool Intel4002::isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip) 
 }
 
 uint4_t Intel4002::readStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const {
-    if (isStatusAdrAccessable(bank, chip)) {
+    if (isStatusAdrAccessable(bank, chip) && nibbleaddress <= 0b11) {
         return RAMStatus[bank][chip][ramregister][(nibbleaddress & 0b11)];
     }
     return 0;
 }
 
 bool Intel4002::writeStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value) {
-    if (isStatusAdrAccessable(bank, chip)) {
+    if (isStatusAdrAccessable(bank, chip) && nibbleaddress <= 0b11) {
         RAMStatus[bank][chip][ramregister][(nibbleaddress & 0b11)] = value;
         return true;
     }
