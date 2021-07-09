@@ -1,3 +1,7 @@
+/*
+	Autoren:
+	- Henry Schuler
+*/
 #ifndef _4002_h_
 #define _4002_h_
 

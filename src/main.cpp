@@ -1,3 +1,10 @@
+/*
+	Autoren:
+	- Henry Schuler
+	- David Felder
+	- Lea Silberzahn
+	- Florian Herkommer
+*/
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 	#include "..\4002-RAM\4002.h"
@@ -89,7 +96,7 @@ void functionTestIntel4004() {
         processor->nextCommand();
     }
 
-    uint4_t value = processor->getPtrToRAM()->readRAMNibble(BANK0,CHIP0, REG3, 15);
+    uint4_t value = processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 15);
     cout << (int)value << endl;
     cout << (int)processor->getTicks() << endl;
 }
