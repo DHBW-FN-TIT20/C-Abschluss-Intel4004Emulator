@@ -1,3 +1,6 @@
 *.exe
 .vscode
 *.out
+unittest.cpp
+BinaryFile.bin
+IntelHexFile.hex
