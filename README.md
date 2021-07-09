@@ -28,7 +28,7 @@ Folder | Usage
 > Note: Your relative paths to the needed c/cpp files might be different if you are not using this project's structure or file naming
 
 ## Authors
-* David Felder / [github](https://github.com/screetox)
-* Florian Herkommer / [github](https://github.com/Floqueboque)
-* Henry Schuler / [github](https://github.com/schuler-henry)
-* Lea Silberzahn / [github](https://github.com/lealabert)
+* David Felder / [github](https://github.com/screetox) / [E-Mail](mailto:felder.david-it20@it.dhbw-ravensburg.de?cc=herkommer.flor-it20@it.dhbw-ravensburg.de;schuler.henry-it20@it.dhbw-ravensburg.de;silberzahn.lea-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
+* Florian Herkommer / [github](https://github.com/Floqueboque) / [E-Mail](mailto:herkommer.flor-it20@it.dhbw-ravensburg.de?cc=felder.david-it20@it.dhbw-ravensburg.de;schuler.henry-it20@it.dhbw-ravensburg.de;silberzahn.lea-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
+* Henry Schuler / [github](https://github.com/schuler-henry) / [E-Mail](mailto:schuler.henry-it20@it.dhbw-ravensburg.de?cc=felder.david-it20@it.dhbw-ravensburg.de;herkommer.flor-it20@it.dhbw-ravensburg.de;silberzahn.lea-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
+* Lea Silberzahn / [github](https://github.com/lealabert) / [E-Mail](mailto:silberzahn.lea-it20@it.dhbw-ravensburg.de?cc=felder.david-it20@it.dhbw-ravensburg.de;herkommer.flor-it20@it.dhbw-ravensburg.de;schuler.henry-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
