@@ -1,4 +1,8 @@
 // Include local header files
+/*
+	Autoren:
+	- Henry Schuler
+*/
 #include "4002.h"
 
 // Include gloabl header files

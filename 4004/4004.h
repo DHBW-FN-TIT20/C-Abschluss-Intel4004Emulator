@@ -1,3 +1,10 @@
+/*
+	Autoren:
+	- Henry Schuler
+	- David Felder
+	- Lea Silberzahn
+	- Florian Herkommer
+*/
 #ifndef _4004_h_
 #define _4004_h_
 
@@ -131,42 +138,52 @@ private:
 	void NOP();
 	/**
 	 * Load data to Accumulator
+	 * @param UCommand command
 	 */
 	void LDM(UCommand command);
 	/**
 	 * Load index register to Accumulator
+	 * @param UCommand command
 	 */ 
 	void LD(UCommand command);
 	/**
 	 * Exchange index register and accumulator
+	 * @param UCommand command
 	 */ 
 	void XCH(UCommand command);
 	/**
 	 * Add index register to accumulator with carry
+	 * @param UCommand command
 	 */ 
 	void ADD(UCommand command);
 	/**
 	 * Subtract index register from accumulator with borrow
+	 * @param UCommand command
 	 */ 
 	void SUB(UCommand command);
 	/**
 	 * Increment index register
+	 * @param UCommand command
 	 */ 
 	void INC(UCommand command);
 	/**
 	 * Branch back and load data to the accumulator
+	 * @param UCommand command
 	 */ 
 	void BBL(UCommand command);
 	/**
 	 * Jump indirect
+	 * @param UCommand command
 	 */ 
 	void JIN(UCommand command);
 	/**
 	 * Send register control
+	 * @param UCommand command
 	 */ 
 	void SRC(UCommand command);
 	/**
 	 * Fetch indirect from ROM
+	 * @param UCommand command
 	 */ 
 	void FIN(UCommand command);
 
@@ -229,30 +246,39 @@ private:
 	 */
 	void DCL();
 
-
+	/************ Two-Word-Instructions ***********************************/
 	/**
 	 * Jump unconditional
+	 * @param UCommand firstCommand
+	 * @param UCommand secondCommand
 	 */
 	void JUN(UCommand byte1, UCommand byte2);
 	/**
 	 * Jump to Subroutine
+	 * @param UCommand firstCommand
+	 * @param UCommand secondCommand
 	 */
 	void JMS(UCommand byte1, UCommand byte2);
 	/**
 	 * Jump conditional
+	 * @param UCommand firstCommand
+	 * @param UCommand secondCommand
 	 */
 	void JCN(UCommand byte1, UCommand byte2);
 	/**
 	 * Increment index register skip if zero
+	 * @param UCommand firstCommand
+	 * @param UCommand secondCommand
 	 */
 	void ISZ(UCommand byte1, UCommand byte2);
 	/**
 	 * Fetched immediate from ROM
+	 * @param UCommand firstCommand
+	 * @param UCommand secondCommand
 	 */
 	void FIM(UCommand byte1, UCommand byte2);
 
-
-
+	/******************** Input-Output-Instructions *******************************/
 	/**
 	 * Read RAM character
 	 */
@@ -263,6 +289,7 @@ private:
 	void RDn(UCommand command);
 	/**
 	 * Read ROM port
+	 * @param UCommand command
 	 */
 	void RDR();
 	/**
@@ -271,6 +298,7 @@ private:
 	void WRM();
 	/**
 	 * Write accumulator into RAM status character 0-3
+	 * @param UCommand command
 	 */
 	void WRn(UCommand command);
 	/**

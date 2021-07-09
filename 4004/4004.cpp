@@ -1,8 +1,12 @@
 /*
 * Autoren:
-* - Mnemonics: David Felder, Florian Herkommer
-* - Ausimplementierung Intel4004: Lea Silberzahn
+* - Mnemonics 
+        - David Felder: Twor-Word-Instructions, Accumulator Group Instructions
+        - Florian Herkommer: One-Word-Instructions, Accumulator Group Instructions
+        - Henry Schuler: RAM/ROM-Instructions
+* - Lea Silberzahn: Ausimplementierung Intel4004-Klasse
 */
+
 // Include local header files
 #include "4004.h"
 
