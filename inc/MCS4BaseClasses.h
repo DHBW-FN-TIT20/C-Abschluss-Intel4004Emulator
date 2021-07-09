@@ -224,8 +224,7 @@ public:
 	 * @param command Kommando aus der Befehlsablaufsteuerung
 	 * @return Erkannter Befehl
 	 */
-	virtual ERAMCommand nextCommand(Intel4004Base *ptr,
-			const UCommand command) = 0;
+	virtual ERAMCommand nextCommand(Intel4004Base *ptr, const UCommand command) = 0;
 #endif
 };
 
@@ -341,8 +340,7 @@ public:
  * @param installed_RAM_Chips Format installierte RAM Bits 8Bänke a 4Chips (Bit0->Bank0,Chip0, Bit1->Bank0,Chip1, Bit3->Bank0,Chip2, ... Bit31->Bank7,Chip4).
  * @return Instanz der eigenen Applikation die die Basiklasse Intel4002Base implementiert
  */
-extern Intel4002Base* get4002Instance(const uint32_t installed_RAM_Chips =
-		0xFFFFFFFF);
+extern Intel4002Base* get4002Instance(const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
 #endif
 
 /**
@@ -351,6 +349,5 @@ extern Intel4002Base* get4002Instance(const uint32_t installed_RAM_Chips =
  * @param installed_RAM_Chips Format installierte RAM Bits 8Bänke a 4Chips (Bit0->Bank0,Chip0, Bit1->Bank0,Chip1, Bit3->Bank0,Chip2, ... Bit31->Bank7,Chip4).
  * @return Instanz der eigenen Applikation die die Basiklasse Intel4004Base implementiert
  */
-extern Intel4004Base* get4004Instance(const uint16_t installed_ROM_Chips =
-		0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
+extern Intel4004Base* get4004Instance(const uint16_t installed_ROM_Chips = 0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
 #endif
