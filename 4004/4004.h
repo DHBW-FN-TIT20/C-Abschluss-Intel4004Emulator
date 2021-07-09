@@ -28,7 +28,7 @@ public:
 	/**
 	 * Konstruktor
 	 */
-	Intel4004();
+	Intel4004(const uint16_t installed_ROM_Chips = 0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
 	/**
 	 * Destruktor
 	 */
@@ -123,5 +123,176 @@ private:
 	 *	PC zuerst erhöhen, dann Funktion aufrufen!!
 	 * 	Bei two-word-commands liest nextCommand() beide Bytes ein und übergibt diese an die jeweilige Funtion
 	 */
+
+	/******* One word machine instruction ********************/
+	/**
+	 * No Operation
+	 */
+	void NOP();
+	/**
+	 * Load data to Accumulator
+	 */
+	void LDM(UCommand command);
+	/**
+	 * Load index register to Accumulator
+	 */ 
+	void LD(UCommand command);
+	/**
+	 * Exchange index register and accumulator
+	 */ 
+	void XCH(UCommand command);
+	/**
+	 * Add index register to accumulator with carry
+	 */ 
+	void ADD(UCommand command);
+	/**
+	 * Subtract index register from accumulator with borrow
+	 */ 
+	void SUB(UCommand command);
+	/**
+	 * Increment index register
+	 */ 
+	void INC(UCommand command);
+	/**
+	 * Branch back and load data to the accumulator
+	 */ 
+	void BBL(UCommand command);
+	/**
+	 * Jump indirect
+	 */ 
+	void JIN(UCommand command);
+	/**
+	 * Send register control
+	 */ 
+	void SRC(UCommand command);
+	/**
+	 * Fetch indirect from ROM
+	 */ 
+	void FIN(UCommand command);
+
+	/******************Accumulator Group Instructions **********/
+
+	/**
+	 * Clear both
+	 */
+	void CLB();
+	/**
+	 * Clear carry
+	 */
+	void CLC();
+	/**
+	 * Complement carry
+	 */
+	void CMC();
+	/**
+	 * Set carry
+	 */
+	void STC();
+	/**
+	 * Complement Accumulator
+	 */
+	void CMA();
+	/**
+	 * Increment accumulator
+	 */
+	void IAC();
+	/**
+	 * Decrement accumulator
+	 */
+	void DAC();
+	/**
+	 * Rotate left
+	 */
+	void RAL();
+	/**
+	 * Rotate right
+	 */
+	void RAR();
+	/**
+	 * Transmit carry and clear
+	 */
+	void TCC();
+	/**
+	 * Decimal adjust accumulator
+	 */
+	void DAA();
+	/**
+	 * Transfer carry subtract
+	 */
+	void TCS();
+	/**
+	 * Keyboard process
+	 */
+	void KBP();
+	/**
+	 * Designate command line
+	 */
+	void DCL();
+
+
+	/**
+	 * Jump unconditional
+	 */
+	void JUN(UCommand byte1, UCommand byte2);
+	/**
+	 * Jump to Subroutine
+	 */
+	void JMS(UCommand byte1, UCommand byte2);
+	/**
+	 * Jump conditional
+	 */
+	void JCN(UCommand byte1, UCommand byte2);
+	/**
+	 * Increment index register skip if zero
+	 */
+	void ISZ(UCommand byte1, UCommand byte2);
+	/**
+	 * Fetched immediate from ROM
+	 */
+	void FIM(UCommand byte1, UCommand byte2);
+
+
+
+	/**
+	 * Read RAM character
+	 */
+	void RDM();
+	/**
+	 * Read RAM status character 0-3
+	 */
+	void RDn(UCommand command);
+	/**
+	 * Read ROM port
+	 */
+	void RDR();
+	/**
+	 * Write accumulator into RAM character
+	 */
+	void WRM();
+	/**
+	 * Write accumulator into RAM status character 0-3
+	 */
+	void WRn(UCommand command);
+	/**
+	 * Write Program RAM
+	 */
+	void WPM();
+	/**
+	 * Write ROM port
+	 */
+	void WRR();
+	/**
+	 * Write memory port
+	 */
+	void WMP();
+	/**
+	 * Add from memory with carry
+	 */
+	void ADM();
+	/**
+	 * Subtract from memory with borrow
+	 */
+	void SBM();
+
 };
 #endif // _4004_h_
