@@ -93,12 +93,29 @@ public:
 
     // Own functions
 
+    /**
+     * Setzt den aktuellen Chip
+     * @param chip Chip 
+     */
     virtual void setCurrentChip(const EROMChip chip);
 
+    /**
+     * Liefert den aktuell ausgewählten Chip zurück
+     * @return Chip
+     */
     virtual EROMChip getCurrentChip() const;
 
+    /**
+     * Liest Nibble aus Portschnittstelle
+     * @param value Wert
+     */
     virtual uint4_t readPort() const;
     
+    /**
+     * Schreibe Nibble auf Portschnittstelle
+     * @param value Wert
+	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
+     */
     virtual bool writePort(const uint4_t value);
 
 protected:

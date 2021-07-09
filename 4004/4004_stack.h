@@ -1,6 +1,5 @@
 #ifndef _4004_STACK_H_
 #define _4004_STACK_H_
-
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 	#include "..\inc\MCS4BaseClasses.h"
@@ -13,6 +12,7 @@
 
 // Declaring namespaces
 using namespace std;
+
 
 /**
  * Stackverwaltung für den Intel4004 Prozessor.

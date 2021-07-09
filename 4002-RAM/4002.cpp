@@ -1,8 +1,8 @@
-// Include local header files
 /*
 	Autoren:
 	- Henry Schuler
 */
+// Include local header files
 #include "4002.h"
 
 // Include gloabl header files
@@ -10,6 +10,7 @@
 
 // Declaring namespaces
 using namespace std;
+
 
 Intel4002::Intel4002(const uint32_t installedChips) : currentBank(BANK0), currentChip(CHIP0), currentNibbleAddress(0), RAM(nullptr), RAMStatus(nullptr), RAMPort(nullptr), INSTALLEDRAM(nullptr) {
     // Initialize RAM, RAMStatus, RAMPort, INSTALLEDRAM
@@ -161,19 +162,11 @@ void Intel4002::setCurrentBank(const ERAMBank bank) {
     }
 }
 
-// ERAMBank Intel4002::getCurrentBank() const {
-//     return currentBank;
-// }
-
 void Intel4002::setCurrentChip(const ERAMChip chip) {
     if (CHIP0 <= chip && chip <= CHIP3) {
         currentChip = chip;
     }
 }
-
-// ERAMChip Intel4002::getCurrentChip() const {
-//     return currentChip;
-// }
 
 void Intel4002::setCurrentRegister(const ERAMRegister reg) {
     currentRegister = reg;
@@ -182,7 +175,3 @@ void Intel4002::setCurrentRegister(const ERAMRegister reg) {
 void Intel4002::setCurrentNibbleAddress(const int address) {
     currentNibbleAddress = (address & 0b1111);
 }
-
-// int Intel4002::getCurrentAddress() const {
-//     return currentAddress;
-// }

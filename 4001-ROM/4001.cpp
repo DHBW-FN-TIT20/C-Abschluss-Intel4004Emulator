@@ -1,3 +1,8 @@
+/*
+	Autoren:
+	- Henry Schuler
+    - Thomas Staudacher
+*/
 // Include local header files
 #include "4001.h"
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -33,7 +38,6 @@ Intel4001::~Intel4001() {
     delete [] INSTALLEDROM;
     delete [] PORTS;
 }
-
 
 void Intel4001::reset() {
 

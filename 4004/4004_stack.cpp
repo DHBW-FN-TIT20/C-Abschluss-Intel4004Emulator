@@ -1,3 +1,8 @@
+/*
+	Autoren:
+	- Henry Schuler
+	- Thomas Staudacher
+*/
 // Include local header files
 #include "4004_stack.h"
 
@@ -7,6 +12,7 @@
 
 // Declaring namespaces
 using namespace std;
+
 
 Intel4004Stack::Intel4004Stack() :
 		position(0), count(0), stack(nullptr) {
@@ -26,30 +32,21 @@ Intel4004Stack::~Intel4004Stack() {
 }
 
 void Intel4004Stack::push(const UBankedAddress address) {
-	// if (count < 0) {
-	// 	count = position = 0;
-	// } else if (count >= STACKSIZE) {
 	if (count >= STACKSIZE) {
-
-	 	// ++count;
 		WarningCondition(EDirection::PUSH);
-	// 	return;
 	}
 
 	stack[2] = stack[1];
 	stack[1] = stack[0];
 	stack[0] = address;
 
-	// ++position;
 	position = (position + 1) % 3;
 	++count;
 }
 
 UBankedAddress Intel4004Stack::pop() {
 	if (count < 1) {
-		// --count;
 		WarningCondition(EDirection::POP);
-		//return 0;
 	}
 
 	auto ret = stack[0];
@@ -60,8 +57,6 @@ UBankedAddress Intel4004Stack::pop() {
 	stack[2] = ret;
 
 	position = ((position - 1) + 3) % 3;
-	// if (position > 0)
-	// 	--position;
 
 	--count;
 
@@ -74,7 +69,6 @@ void Intel4004Stack::reset() {
 }
 
 int Intel4004Stack::getCurrentStackPosition() const {
-	//return position;
 	if(count < 1) return 0;
 	else if(count > STACKSIZE) return STACKSIZE;
 	else return count;

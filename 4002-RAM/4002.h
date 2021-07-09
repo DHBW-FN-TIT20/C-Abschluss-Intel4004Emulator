@@ -4,7 +4,6 @@
 */
 #ifndef _4002_h_
 #define _4002_h_
-
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 	#include "..\inc\MCS4BaseClasses.h"
@@ -17,6 +16,7 @@
 
 // Declaring namespaces
 using namespace std;
+
 
 class Intel4002 : public Intel4002Base {
 public:
@@ -99,7 +99,7 @@ public:
 	 */
 	virtual uint4_t readFromPortBuffer(const ERAMBank bank, const ERAMChip chip) const;
 	
-	// Unsere besseren Funktionen
+	// Our functions
 
 	/**
 	 * Liest ein Nibble an der aktuellen Adresse
@@ -141,21 +141,11 @@ public:
 	 * @param bank Bank
 	 */
 	virtual void setCurrentBank(const ERAMBank bank);
-		/**
-		 * Gibt die aktuelle Bank zurück
-		 * @return currentBank
-		 */
-		//virtual ERAMBank getCurrentBank() const;
 	/**
 	 * Setzt den aktuellen Chip
 	 * @param chip Chip
 	 */
 	virtual void setCurrentChip(const ERAMChip chip);
-		/**
-		 * Gibt den aktuellen Chip zurück
-		 * @return currentChip
-		 */
-		//virtual ERAMChip getCurrentChip() const;
 	/**
 	 * Setzt das aktuelle Register
 	 * @param reg Register
@@ -166,20 +156,38 @@ public:
 	 * @param address Adresse
 	 */
 	virtual void setCurrentNibbleAddress(const int address);
-		/**
-		 * Gibt die aktuelle Adresse zurück
-		 * @return currentAddress
-		 */
-		//virtual int getCurrentAddress() const;
-
 private:
+	/**
+     * Aktive Bank
+     */
 	ERAMBank currentBank;
+	/**
+     * Aktiver Chip
+     */
 	ERAMChip currentChip;
+	/**
+     * Aktives Register
+     */
 	ERAMRegister currentRegister;
+	/**
+     * Aktive Adresse
+     */
 	int currentNibbleAddress;
+	/**
+     * RAM Speicher
+     */
 	uint4_t ****RAM;
+	/**
+     * RAM Status Speicher
+     */
 	uint4_t ****RAMStatus;
+	/**
+     * RAM Port Speicher
+     */
 	uint4_t **RAMPort;
+	/**
+     * Aktivierte RAM Chips
+     */
 	bool **INSTALLEDRAM;
 };
 #endif // _4002_h_

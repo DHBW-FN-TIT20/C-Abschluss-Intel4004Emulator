@@ -45,8 +45,6 @@ void Intel4004::reset()
 	ROM->reset();
 	RAM->reset();
 	stack->reset();
-
-    // "A RESET causes DATA RAM BANK 0 to be selected" - MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf, p.3-49
 }
 
 bool Intel4004::getCarry() const
@@ -527,27 +525,8 @@ void Intel4004::KBP()
 void Intel4004::DCL()
 {
     RAM->setCurrentBank(ERAMBank(accumulator & 0b00000111));
-    //uint4_t n = (accumulator & 0b0111);
-    // if (n == 0b0000) {
-    //     RAM->setCurrentBank(BANK0);
-    // } else if (n == 0b0001) {
-    //     RAM->setCurrentBank(BANK1);
-    // } else if (n == 0b0010) {
-    //     RAM->setCurrentBank(BANK2);
-    // } else if (n == 0b0011) {
-    //     RAM->setCurrentBank(BANK3);
-    // } else if (n == 0b0100) {
-    //     RAM->setCurrentBank(BANK4);
-    // } else if (n == 0b0101) {
-    //     RAM->setCurrentBank(BANK5);
-    // } else if (n == 0b0110) {
-    //     RAM->setCurrentBank(BANK6);
-    // } else if (n == 0b0111) {
-    //     RAM->setCurrentBank(BANK7);
-    // }
     ticks++;
 }
-
 
 
 //Two Word Machine Instruction
@@ -612,15 +591,15 @@ void Intel4004::ISZ(UCommand byte1, UCommand byte2)
 
 void Intel4004::FIM(UCommand byte1, UCommand byte2)
 {
-    // todo vgl. mit FIN wegen ">> 1" und "*2"
-    // 14.6. changed byte1 to byte2 (+2 lines)
     uint4_t designatedRegister = ((byte1.nibble.opa >> 1) & 0b0111) * 2;
     registers[designatedRegister] = byte2.nibble.opr;
     registers[designatedRegister + 1] = byte2.nibble.opa;
     ticks = ticks + 2;
 }
 
-//RAM Instructions
+
+// RAM Instructions
+
 void Intel4004::RDM() {
     accumulator = RAM->readRAM();
     ticks++;
