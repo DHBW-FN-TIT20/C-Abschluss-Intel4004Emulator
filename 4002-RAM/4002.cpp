@@ -7,25 +7,30 @@
 // Declaring namespaces
 using namespace std;
 
-Intel4002::Intel4002(const uint32_t installedChips) : currentBank(BANK0), currentChip(CHIP0), currentAddress(0), RAM(nullptr), RAMStatus(nullptr), RAMPort(nullptr), INSTALLEDRAM(nullptr) {
+Intel4002::Intel4002(const uint32_t installedChips) : currentBank(BANK0), currentChip(CHIP0), currentNibbleAddress(0), RAM(nullptr), RAMStatus(nullptr), RAMPort(nullptr), INSTALLEDRAM(nullptr) {
     // Initialize RAM, RAMStatus, RAMPort, INSTALLEDRAM
-    RAM = new uint4_t**[MAX_NUMBER_OF_BANKS]();
-    RAMStatus = new uint4_t**[MAX_NUMBER_OF_BANKS]();
+    RAM = new uint4_t***[MAX_NUMBER_OF_BANKS]();
+    RAMStatus = new uint4_t***[MAX_NUMBER_OF_BANKS]();
     RAMPort = new uint4_t*[MAX_NUMBER_OF_BANKS]();
     INSTALLEDRAM = new bool*[MAX_NUMBER_OF_BANKS]();
-    uint16_t chips = installedChips;
+    uint32_t chips = installedChips;
 
     for (int i = 0; i < MAX_NUMBER_OF_BANKS; i++) {
-        RAM[i] = new uint4_t*[MAX_NUMBER_OF_RAM_CHIPS]();
-        RAMStatus[i] = new uint4_t*[MAX_NUMBER_OF_RAM_CHIPS]();
+        RAM[i] = new uint4_t**[MAX_NUMBER_OF_RAM_CHIPS]();
+        RAMStatus[i] = new uint4_t**[MAX_NUMBER_OF_RAM_CHIPS]();
         RAMPort[i] = new uint4_t[MAX_NUMBER_OF_RAM_CHIPS];
         INSTALLEDRAM[i] = new bool[MAX_NUMBER_OF_RAM_CHIPS];
 
         for (int j = 0; j < MAX_NUMBER_OF_RAM_CHIPS; j++, chips >>= 1) {
-            RAM[i][j] = new uint4_t[RAM_CELLS_EACH_CHIP];
-            RAMStatus[i][j] = new uint4_t[STATUS_CELLS_EACH_CHIP];
+            RAM[i][j] = new uint4_t*[MAX_NUMBER_OF_RAM_REGISTERS];
+            RAMStatus[i][j] = new uint4_t*[MAX_NUMBER_OF_RAM_REGISTERS];
 
             INSTALLEDRAM[i][j] = chips & 1;
+
+            for (int k = 0; k < MAX_NUMBER_OF_RAM_REGISTERS; k++) {
+                RAM[i][j][k] = new uint4_t[RAM_CELLS_EACH_REGISTER];
+                RAMStatus[i][j][k] = new uint4_t[STATUS_CELLS_EACH_REGISTER];
+            }
         }
     }
 
@@ -36,12 +41,17 @@ Intel4002::~Intel4002() {
     // Delete RAM, RAMStatus, RAMPort, INSTALLEDRAM
     for (int i = 0; i < MAX_NUMBER_OF_BANKS; i ++) {
         for (int j = 0; j < MAX_NUMBER_OF_RAM_CHIPS; j++) {
+            for (int k = 0; k < MAX_NUMBER_OF_RAM_REGISTERS; k++) {
+                delete[] RAM[i][j][k];
+                delete[] RAMStatus[i][j][k];
+            }
             delete[] RAM[i][j];
             delete[] RAMStatus[i][j];
         }
         delete[] RAM[i];
         delete[] RAMStatus[i];
         delete[] RAMPort[i];
+        delete[] INSTALLEDRAM[i];
     }
     delete[] RAM;
     delete[] RAMStatus;
@@ -52,57 +62,60 @@ Intel4002::~Intel4002() {
 void Intel4002::reset() {
     currentBank = BANK0;
     currentChip = CHIP0;
-    currentAddress = 0;
+    currentRegister = REG0;
+    currentNibbleAddress = 0;
 
     for (int i = 0; i < MAX_NUMBER_OF_BANKS; i++) {
         for (int j = 0; j < MAX_NUMBER_OF_RAM_CHIPS; j++) {
-            memset(RAM[i][j], 0, RAM_CELLS_EACH_CHIP);
-            memset(RAMStatus[i][j], 0, STATUS_CELLS_EACH_CHIP);
+            for (int k = 0; k < MAX_NUMBER_OF_RAM_REGISTERS; k++) {
+                memset(RAM[i][j][k], 0, RAM_CELLS_EACH_REGISTER);
+                memset(RAMStatus[i][j][k], 0, STATUS_CELLS_EACH_REGISTER);
+            }
         }
         memset(RAMPort[i], 0, MAX_NUMBER_OF_RAM_CHIPS);
     }
 }
 
-bool Intel4002::isRAMAdrAccessable(const ERAMBank bank, const ERAMChip chip, const int address) const {
-    return (INSTALLEDRAM[bank][chip] && 0 <= address && address <= RAM_CELLS_EACH_CHIP);
+bool Intel4002::isRAMAdrAccessable(const ERAMBank bank, const ERAMChip chip) const {
+    return INSTALLEDRAM[bank][chip];
 }
 
-uint4_t Intel4002::readRAMNibble(const ERAMBank bank, const ERAMChip chip, const int address) const {
-    if (isRAMAdrAccessable(bank, chip, address)) {
-        return RAM[bank][chip][address];
+uint4_t Intel4002::readRAMNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const {
+    if (isRAMAdrAccessable(bank, chip)) {
+        return RAM[bank][chip][ramregister][(nibbleaddress & 0b1111)];
     }
     return 0;
 }
 
-bool Intel4002::writeRAMNibble(const ERAMBank bank, const ERAMChip chip, const int address, const uint4_t value) const {
-    if (isRAMAdrAccessable(bank, chip, address)) {
-        RAM[bank][chip][address] = value;
+bool Intel4002::writeRAMNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value) {
+    if (isRAMAdrAccessable(bank, chip)) {
+        RAM[bank][chip][ramregister][(nibbleaddress & 0b1111)] = value;
         return true;
     }
     return false;
 }
 
-bool Intel4002::isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip, const int address) const {
-    return (INSTALLEDRAM[bank][chip] && 0b00 <= (address >> 4) && (address >> 4) <= 0b11 && 0b0000 <= (address & 0b1111) && (address & 0b1111) <= 0b0011);
+bool Intel4002::isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip) const {
+    return INSTALLEDRAM[bank][chip];
 }
 
-uint4_t Intel4002::readStatusNibble(const ERAMBank bank, const ERAMChip chip, const int address) const {
-    if (isStatusAdrAccessable(bank, chip, address)) {
-        return RAMStatus[bank][chip][(address >> 4) * 4 + (address & 0b1111)];
+uint4_t Intel4002::readStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const {
+    if (isStatusAdrAccessable(bank, chip) && nibbleaddress <= 0b11) {
+        return RAMStatus[bank][chip][ramregister][(nibbleaddress & 0b11)];
     }
     return 0;
 }
 
-bool Intel4002::writeStatusNibble(const ERAMBank bank, const ERAMChip chip, const int address, const uint4_t value) const {
-    if (isStatusAdrAccessable(bank, chip, address)) {
-        RAMStatus[bank][chip][(address >> 4) * 4 + (address & 0b1111)] = value;
+bool Intel4002::writeStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value) {
+    if (isStatusAdrAccessable(bank, chip) && nibbleaddress <= 0b11) {
+        RAMStatus[bank][chip][ramregister][(nibbleaddress & 0b11)] = value;
         return true;
     }
     return false;
 }
 
 uint4_t Intel4002::readFromPortBuffer(const ERAMBank bank, const ERAMChip chip) const {
-    if (isRAMAdrAccessable(bank, chip, 0)) {
+    if (isRAMAdrAccessable(bank, chip)) {
         return RAMPort[bank][chip];
     }
     return 0;
@@ -110,9 +123,29 @@ uint4_t Intel4002::readFromPortBuffer(const ERAMBank bank, const ERAMChip chip) 
 
 // Our functions
 
-bool Intel4002::writePortBuffer(const ERAMBank bank, const ERAMChip chip, uint4_t value) {
-    if (isRAMAdrAccessable(bank, chip, 0)) {
-        RAMPort[bank][chip] = value;
+uint4_t Intel4002::readRAM() {
+    return readRAMNibble(currentBank, currentChip, currentRegister, currentNibbleAddress);
+}
+
+bool Intel4002::writeRAM(const uint4_t value) {
+    return writeRAMNibble(currentBank, currentChip, currentRegister, currentNibbleAddress, value);
+}
+
+uint4_t Intel4002::readStatus(const int address) {
+    return readStatusNibble(currentBank, currentChip, currentRegister, (address & 0b11));
+}
+
+bool Intel4002::writeStatus(const int address, const uint4_t value) {
+    return writeStatusNibble(currentBank, currentChip, currentRegister, (address & 0b11), value);
+}
+
+uint4_t Intel4002::readPortBurffer() {
+    return readFromPortBuffer(currentBank, currentChip);
+}
+
+bool Intel4002::writePortBuffer(uint4_t value) {
+    if (isRAMAdrAccessable(currentBank, currentChip)) {
+        RAMPort[currentBank][currentChip] = value;
         return true;
     }
     return false;
@@ -124,9 +157,9 @@ void Intel4002::setCurrentBank(const ERAMBank bank) {
     }
 }
 
-ERAMBank Intel4002::getCurrentBank() const {
-    return currentBank;
-}
+// ERAMBank Intel4002::getCurrentBank() const {
+//     return currentBank;
+// }
 
 void Intel4002::setCurrentChip(const ERAMChip chip) {
     if (CHIP0 <= chip && chip <= CHIP3) {
@@ -134,16 +167,18 @@ void Intel4002::setCurrentChip(const ERAMChip chip) {
     }
 }
 
-ERAMChip Intel4002::getCurrentChip() const {
-    return currentChip;
+// ERAMChip Intel4002::getCurrentChip() const {
+//     return currentChip;
+// }
+
+void Intel4002::setCurrentRegister(const ERAMRegister reg) {
+    currentRegister = reg;
 }
 
-void Intel4002::setCurrentAddress(const int address) {
-    if (0 <= address && address <= RAM_CELLS_EACH_CHIP) {
-        currentAddress = address;
-    }
+void Intel4002::setCurrentNibbleAddress(const int address) {
+    currentNibbleAddress = (address & 0b1111);
 }
 
-int Intel4002::getCurrentAddress() const {
-    return currentAddress;
-}
+// int Intel4002::getCurrentAddress() const {
+//     return currentAddress;
+// }

@@ -97,6 +97,10 @@ public:
 
     virtual EROMChip getCurrentChip() const;
 
+    virtual uint4_t readPort() const;
+    
+    virtual bool writePort(const uint4_t value);
+
 protected:
     /**
      * L�schte alle Speicherbereiche die nicht installiert sind

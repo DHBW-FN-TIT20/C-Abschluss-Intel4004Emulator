@@ -28,7 +28,7 @@ public:
 	/**
 	 * Konstruktor
 	 */
-	Intel4004();
+	Intel4004(const uint16_t installed_ROM_Chips = 0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
 	/**
 	 * Destruktor
 	 */
@@ -192,6 +192,107 @@ private:
 	 * Complement Accumulator
 	 */
 	void CMA();
+	/**
+	 * Increment accumulator
+	 */
+	void IAC();
+	/**
+	 * Decrement accumulator
+	 */
+	void DAC();
+	/**
+	 * Rotate left
+	 */
+	void RAL();
+	/**
+	 * Rotate right
+	 */
+	void RAR();
+	/**
+	 * Transmit carry and clear
+	 */
+	void TCC();
+	/**
+	 * Decimal adjust accumulator
+	 */
+	void DAA();
+	/**
+	 * Transfer carry subtract
+	 */
+	void TCS();
+	/**
+	 * Keyboard process
+	 */
+	void KBP();
+	/**
+	 * Designate command line
+	 */
+	void DCL();
+
+
+	/**
+	 * Jump unconditional
+	 */
+	void JUN(UCommand byte1, UCommand byte2);
+	/**
+	 * Jump to Subroutine
+	 */
+	void JMS(UCommand byte1, UCommand byte2);
+	/**
+	 * Jump conditional
+	 */
+	void JCN(UCommand byte1, UCommand byte2);
+	/**
+	 * Increment index register skip if zero
+	 */
+	void ISZ(UCommand byte1, UCommand byte2);
+	/**
+	 * Fetched immediate from ROM
+	 */
+	void FIM(UCommand byte1, UCommand byte2);
+
+
+
+	/**
+	 * Read RAM character
+	 */
+	void RDM();
+	/**
+	 * Read RAM status character 0-3
+	 */
+	void RDn(UCommand command);
+	/**
+	 * Read ROM port
+	 */
+	void RDR();
+	/**
+	 * Write accumulator into RAM character
+	 */
+	void WRM();
+	/**
+	 * Write accumulator into RAM status character 0-3
+	 */
+	void WRn(UCommand command);
+	/**
+	 * Write Program RAM
+	 */
+	void WPM();
+	/**
+	 * Write ROM port
+	 */
+	void WRR();
+	/**
+	 * Write memory port
+	 */
+	void WMP();
+	/**
+	 * Add from memory with carry
+	 */
+	void ADM();
+	/**
+	 * Subtract from memory with borrow
+	 */
+	void SBM();
 
 };
 #endif // _4004_h_
