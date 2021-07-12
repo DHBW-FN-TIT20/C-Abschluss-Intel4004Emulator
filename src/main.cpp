@@ -7,10 +7,8 @@
 */
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-	#include "..\4002-RAM\4002.h"
     #include "..\4004\4004.h"
 #elif __unix__
-	#include "../4002-RAM/4002.h"
     #include "../4004/4004.h"
 #endif
 
@@ -22,83 +20,88 @@
 using namespace std;
 
 // Declaring functions
-void functionTestIntel4002();
-void functionTestIntel4004();
+void functionIntel4004();
+bool functionPrintProcessorState(Intel4004Base *processor);
 
 // MAIN
 int main() {
-    functionTestIntel4004();
+    functionIntel4004();
     return 0;
 }
 
 // Functions
-void functionTestIntel4002() {
-    // Intel4002 test(0b1011001110101111);
-
-    // for (int i = 0; i < 4; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         cout << "Bank: " << i << " Chip: " << j << " : " << test.isRAMAdrAccessable((ERAMBank) i, (ERAMChip) j) << endl;
-    //     }
-    // }
-    
-    // cout << "Bank: 0 Chip: 0 Register: 1 Adresse: 15 : " << test.isRAMAdrAccessable(BANK0, CHIP0, REG1, 15) << endl;
-
-    // test.writeRAMNibble(BANK0, CHIP0, 0, 0xF);
-    // test.writeRAMNibble(BANK0, CHIP0, 3, 0x5);
-
-    // for (int i = 0; i < 64; i++) {
-    //     cout << hex << (int) test.readRAMNibble(BANK0, CHIP0, i) << " " << dec;
-    // }
-
-    // cout << endl;
-
-    // cout << (0b110001 >> 4) << " " << test.isStatusAdrAccessable(BANK0, CHIP0, 0b110001) << endl;
-
-    // test.writeStatusNibble(BANK0, CHIP0, 0, 0xF);
-    // test.writeStatusNibble(BANK0, CHIP0, 0b010010, 0xF);
-
-    // cout << hex << (int) test.readStatusNibble(BANK0, CHIP0, 0b110001) << dec << endl;
-
-    // for (int i = 0; i < 4; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         cout << hex << (int) test.readStatusNibble(BANK0, CHIP0, (i << 4) + j) << " " << dec;
-    //     }
-    // }
-
-    // cout << endl;
-    
-    // test.writePortBuffer(BANK0, CHIP0, 0xF);
-    // test.writePortBuffer(BANK2, CHIP1, 0xF);
-    
-    // for (int i = 0; i < 4; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         cout << hex << (int) test.readFromPortBuffer((ERAMBank) i, (ERAMChip) j) << " " << dec;
-    //     }
-    // }
-
-    // cout << endl;
-
-    // test.setCurrentBank(BANK2);
-    // test.setCurrentChip(CHIP1);
-    // test.setCurrentAddress(0b110101);
-
-    // cout << hex << "Bank: " << test.getCurrentBank() << " Chip: " << test.getCurrentChip() << " Address: " << test.getCurrentAddress() << endl << dec;
-}
-
-void functionTestIntel4004() {
-    Intel4004 test();
+void functionIntel4004() {
+    // Instantiate an Intel4004 processor
     Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
-    processor->getPtrToROM()->writeFromIntelHexFile(".\\..\\Assembler-Examples\\P1.hex");
-    // for (int i = 0; i < 1000; i++) {
-    //     processor->nextCommand();
-    // }
-    while(processor->getTicks() < 390 ){
-        processor->nextCommand();
-    }
+    Intel4004Base *secondProcessor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
 
-    uint4_t value = processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, REG3, 15);
-    cout << (int)value << endl;
-    cout << (int)processor->getTicks() << endl;
+
+    // Access RAM Module
+    Intel4002Base *RAM = processor->getPtrToRAM();
+
+
+    // Access ROM Module
+    Intel4001Base *ROM = processor->getPtrToROM();
+
+
+    // Write to ROM
+    // Array containing Commands (FIM_0 0xFF, NOP)
+    uint8_t source[] = { 0x20, 0xFF, 0x00 };
+    processor->getPtrToROM()->writeFrom(source, sizeof(source));
+    // IntelHex file
+    processor->getPtrToROM()->writeFromIntelHexFile("hexFilePath");
+    // Binary file
+    processor->getPtrToROM()->writeFromBinaryFile("binaryFilePath");
+
+
+    // Perform next command operation
+    processor->nextCommand();
+    
+    
+    // View current state of processor
+    functionPrintProcessorState(processor);
 }
 
-// g++ main.cpp ..\inc\intelhex.c ..\4001-ROM\4001.cpp ..\4002-RAM\4002.cpp ..\4004\4004.cpp ..\4004\4004_stack.cpp
+
+functionPrintProcessorState(Intel4004Base *processor) {
+    cout << "---- Intel4004 Emulation ----" << endl << endl;
+    cout << "Intel4004 CPU:" << endl;
+    cout << setw(10) << "PC " << hex << setw(3) << (int) processor->getPC() << dec << endl;
+    cout << setw(10) << "Level 1 " << hex << setw(3) << setfill(0) << (int) processor->getPtrToStack()->getCopyOfStack()[(processor->getPtrToStack()->getCurrentStackPosition() + 2) % 3] << dec << endl;
+    cout << setw(10) << "Level 2 " << hex << setw(3) << setfill(0) << (int) processor->getPtrToStack()->getCopyOfStack()[processor->getPtrToStack()->getCurrentStackPosition() % 3] << dec << endl;
+    cout << setw(10) << "Level 3 " << hex << setw(3) << setfill(0) << (int) processor->getPtrToStack()->getCopyOfStack()[(processor->getPtrToStack()->getCurrentStackPosition() + 1) % 3] << dec << endl;
+    cout << endl;
+    cout << "Registers:" << endl;
+    cout << "R0R1 " << hex << processor->getRegister(R0) << " " << processor->getRegister(R1) << dec << endl;
+    cout << "R2R3 " << hex << processor->getRegister(R2) << " " << processor->getRegister(R3) << dec << endl;
+    cout << "R4R5 " << hex << processor->getRegister(R4) << " " << processor->getRegister(R5) << dec << endl;
+    cout << "R6R7 " << hex << processor->getRegister(R6) << " " << processor->getRegister(R7) << dec << endl;
+    cout << "R8R9 " << hex << processor->getRegister(R8) << " " << processor->getRegister(R9) << dec << endl;
+    cout << "RARB " << hex << processor->getRegister(R10) << " " << processor->getRegister(R11) << dec << endl;
+    cout << "RCRD " << hex << processor->getRegister(R12) << " " << processor->getRegister(R13) << dec << endl;
+    cout << "RERF " << hex << processor->getRegister(R14) << " " << processor->getRegister(R15) << dec << endl;
+    cout << endl;
+    cout << "Accumulator " << setw(4) << setfill(0) << hex << processor->getAccumulator() << dec << endl;
+    cout << "Carry " << setw(1) << setfill(0) << hex << processor->getCarry() << "Test " << setw(1) << setfill(0) << processor->getTestPin() << dec << endl;
+    cout << endl;
+    cout << endl;
+    cout << "Intel4002 RAM:" << endl;
+    cout << endl;
+    cout << "Bank 0, Chip 0:" << endl;
+    cout << endl;
+    cout << setw(15) << " " << "0 1 2 3 4 5 6 7 8 9 A B C D E F" << setw(4) << " " << "0 1 2 3" << endl;
+    for (int j = 0; j < 4; j++) {
+        cout << setw(15) << "Register " << j << " ";
+        for (int i = 0; i < 16; i++) {
+            cout << hex << processor->getPtrToRAM()->readRAMNibble(BANK0, CHIP0, (ERAMRegister) j, i) << " " << dec;
+        }
+        cout << setw(3) << " ";
+        for (int i = 0; i < 4; i++) {
+            cout << hex << processor->getPtrToRAM()->readStatusNibble(BANK0, CHIP0, (ERAMRegister) j, i) << " " << dec;
+        }
+        cout << endl;
+    }
+    cout << endl;
+	
+	return true;
+}
