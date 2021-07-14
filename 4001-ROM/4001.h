@@ -1,6 +1,10 @@
+/*
+	Authors:
+	- Henry Schuler
+    - Thomas Staudacher
+*/
 #ifndef _4001_h_
 #define _4001_h_
-
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 	#include "..\inc\MCS4BaseClasses.h"
@@ -18,139 +22,139 @@ public:
         ROM_CELLS_EACH_CHIP = 256,
         MAX_NUMBER_OF_ROM_CHIPS = 16
     };
-
+    
     /**
-     * Ctor um den ROM Speicher zu erzeugen
-     * @param installed_banks Installierte B�nke (Default alle 16 B�nke)
+     * Constructor for ROM memory
+     * @param installedBanks Installed banks (Default all 16 banks)
      */
-    Intel4001(const uint16_t installed_banks = 0xFFFF);
+    Intel4001(const uint16_t installedBanks = 0xFFFF);
     
 	/**
-     * Destruktor r�umt den Speicher auf
+     * Destructor cleans up memory
      */
     virtual ~Intel4001();
     
 	/**
-     * Setzt die internen Register zur�ck (Datenzellen auf 0x00, Ports auch auf 0)
+     * Reset intern registers (data cells to 0x00, ports to 0x0)
      */
     virtual void reset();
     
 	/**
-     * Welche B�nke sind in diesem System verbaut
-     * @return Bits der eingeschalteten B�nke
+     * Which banks are currently installed
+     * @return Bits of installed banks
      */
     virtual uint16_t getEnabledBank() const;
     
 	/**
-     * Liest das Programm ein (Typ bin�r)
-     * @param path Quelldatei
+     * Read program data (type binary)
+     * @param path Source file
      */
     virtual void writeFromBinaryFile(const char * const path);
     
 	/**
-     * Liest das Programm ein (Typ Intel HEX)
-     * @param path Quelldatei
+     * Read program data (type Intel HEX)
+     * @param path Source file
      */
     virtual void writeFromIntelHexFile(const char * const path);
     
 	/**
-     * Liest das Programm ein (Typ Bytes)
-     * @param data Datenquelle
-     * @param count Anzahl Bytes die geschrieben werden
-     * @return Anzahl
+     * Read program data (type bytes)
+     * @param data Data source/array
+     * @param count Amount of bytes to write
+     * @return Amount of written bytes
      */
     virtual int writeFrom(uint8_t *data, const int count);
     
 	/**
-     * Ist die lokale Adresse vorhanden (gibt es diese Adresse 12bit).
-     * falls nicht wird false zur�ckgegeben
-     * @param address Lineare Adresse ohne Bankangabe
-     * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
+     * Does the local address exist? (12bit).
+     * if not, return false
+     * @param address Linear address without bank
+     * @return <c>true</c> if addressable, else <c>false</c>
      */
     virtual bool isLinAdrAccessable(const uint16_t address) const;
     
 	/**
-     * Liest ein Byte aus dem Speicher
-     * @param address Adresse im Speicher
+     * Read one byte from ROM-memory
+     * @param address ROM-address
      * @return Byte
      */
     virtual uint8_t read(const UBankedAddress address) const;
     
 	/**
-     * Liest Nibble aus Portschnittstelle
+     * Read nibble from ROM-port
 	 * @param chip Chip
-     * @param value Wert
+     * @param value Port-value
      */
     virtual uint4_t readFromPort(const EROMChip chip) const;
     
 	/**
-     * Schreibe Nibble auf Portschnittstelle
+     * Write nibble to ROM-port
 	 * @param chip Chip
-     * @param value Wert
-	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
+     * @param value Port-value to write
+	 * @return <c>true</c> if successful, else <c>false</c>
      */
     virtual bool writeToPort(const EROMChip chip, const uint4_t value);
 
     // Own functions
 
     /**
-     * Setzt den aktuellen Chip
+     * Set current chip
      * @param chip Chip 
      */
     virtual void setCurrentChip(const EROMChip chip);
 
     /**
-     * Liefert den aktuell ausgewählten Chip zurück
+     * Return currently selected chip
      * @return Chip
      */
     virtual EROMChip getCurrentChip() const;
 
     /**
-     * Liest Nibble aus Portschnittstelle
-     * @param value Wert
+     * Read nibble from ROM-port (based on currentChip)
+     * @param value Port-value
      */
     virtual uint4_t readPort() const;
     
     /**
-     * Schreibe Nibble auf Portschnittstelle
-     * @param value Wert
-	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
+     * Write nibble to ROM-port (based on currentChip)
+     * @param value Port-value
+	 * @return <c>true</c> if successful, else <c>false</c>
      */
     virtual bool writePort(const uint4_t value);
 
 protected:
     /**
-     * L�schte alle Speicherbereiche die nicht installiert sind
+     * Erase memory in not installed chips
      */
     virtual void clearROMWhoIsNotInstalled();
 
     /**
-     * Aktivierte B�nke
+     * Currently installed/activated/available banks
      */
-    const uint16_t installed_banks;
+    const uint16_t installedBanks;
     
 	/**
-     * ROM Inhalt (auch nicht installierte B�nke)
+     * ROM memory (includes not installed banks)
      */
     uint8_t *ROM;
     
 	/**
-     * Ist ROM installiert (linear)
+     * Is ROM-bank available (linear)
      */
     bool *INSTALLEDROM;
 
     /**
-     * Aktuell ausgewählter Chip
+     * Currently selected chip
      */
     EROMChip currentChip;
     
 	/**
-     * Port Inhalt (auch nicht installierte B�nke)
+     * Port memory (includes not installed banks)
      */
     uint4_t *PORTS;
     
 	/**
-     * Maximale Anzahl von ROM Speicherstellen die das System �berhaupt haben kann
+     * Maximal amount of ROM memory positions that can exist
      */
     static const size_t ROM_MEMORY_SIZE;
 };

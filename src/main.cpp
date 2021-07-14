@@ -1,9 +1,9 @@
 /*
-	Autoren:
-	- Henry Schuler
+	Authors:
 	- David Felder
-	- Lea Silberzahn
 	- Florian Herkommer
+	- Henry Schuler
+	- Lea Silberzahn
 */
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -18,6 +18,7 @@
 
 // Declaring namespaces
 using namespace std;
+
 
 // Declaring functions
 void functionIntel4004();

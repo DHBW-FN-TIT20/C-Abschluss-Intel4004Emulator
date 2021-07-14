@@ -1,5 +1,5 @@
 /*
-	Autoren:
+	Author:
 	- Henry Schuler
 */
 #ifndef _4002_h_
@@ -27,166 +27,191 @@ public:
         MAX_NUMBER_OF_RAM_CHIPS = 4,
 		MAX_NUMBER_OF_BANKS = 8
     };
+
 	/**
-	 * Konstruktor
+	 * Constructor
 	 */
 	Intel4002(const uint32_t installedChips = 0xFFFFFFFF);
+	
 	/**
-	 * Destruktor
+	 * Destructor
 	 */
 	virtual ~Intel4002();
+	
 	/**
-	 * Setzt die internen Register zurück zurück
+	 * Reset intern registers and values (except installedChips)
 	 */
 	virtual void reset();
+	
 	/**
-	 * Ist die RAM Adresse vorhanden.
-	 * Falls nicht wird false zurückgegeben
+	 * Does the RAM-address exist.
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
-	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
+	 * @param address RAM-memory address
+	 * @return <c>true</c> if addressable, else <c>false</c>
 	 */
 	virtual bool isRAMAdrAccessable(const ERAMBank bank, const ERAMChip chip) const;
+	
 	/**
-	 * Ein Nibble an der derzeit angeforderten Adresse
+	 * Read one nibble from RAM-memory
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
-	 * @return Wert
+	 * @param address RAM-memory address
+	 * @return RAM-memory value
 	 */
 	virtual uint4_t readRAMNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const;
+	
 	/**
-	 * Ein Nibble an der derzeit angeforderten Adresse
+	 * Write one nibble to RAM-memory
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
-	 * @param value Wert
-	 * @return Ob an dieser Stelle schreibbar war
+	 * @param address RAM-memory address
+	 * @param value RAM-memory value
+	 * @return <c>true</c> if successful, else <c>false</c>
 	 */
 	virtual bool writeRAMNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value);
+	
 	/**
-	 * Ist die Status Adresse vorhanden.
-	 * Falls nicht wird false zurückgegeben
+	 * Does the RAM-status-address exist.
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
-	 * @return <c>true</c> wenn addressierbar, sonst <c>false</c>
+	 * @param address RAM-memory address
+	 * @return <c>true</c> if addressable, else <c>false</c>
 	 */
 	virtual bool isStatusAdrAccessable(const ERAMBank bank, const ERAMChip chip) const;
+	
 	/**
-	 * Ein Nibble an der derzeit angeforderten Adresse
+	 * Read one nibble from RAM-status-memory
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
-	 * @return Wert
+	 * @param address RAM-status-memory address
+	 * @return RAM-status-memory value
 	 */
 	virtual uint4_t readStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress) const;
+	
 	/**
-	 * Ein Nibble an der derzeit angeforderten Adresse
+	 * Write one nibble to RAM-status-memory
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @param address Speicherzellenaddresse
-	 * @param value Wert
-	 * @return Ob an dieser Stelle schreibbar war
+	 * @param address RAM-status-memory address
+	 * @param value RAM-status-memory value
+	 * @return <c>true</c> if successful, else <c>false</c>
 	 */
 	virtual bool writeStatusNibble(const ERAMBank bank, const ERAMChip chip, const ERAMRegister ramregister, const int nibbleaddress, const uint4_t value);
+	
 	/**
-	 * Liest ein Nibble aus dem Ausgangspuffer
+	 * Read one nibble from RAM-port
 	 * @param bank Bank
 	 * @param chip Chip
-	 * @return Wert
+	 * @return Port-value
 	 */
 	virtual uint4_t readFromPortBuffer(const ERAMBank bank, const ERAMChip chip) const;
 	
 	// Our functions
 
 	/**
-	 * Liest ein Nibble an der aktuellen Adresse
-	 * @return Wert
+	 * Read one nibble from RAM-memory (based on currently selected RAM-Module)
+	 * @return Memory-value
 	 */
 	virtual uint4_t readRAM();
+	
 	/**
-	 * Schreibt ein Nibble an die aktuelle Adresse
-	 * @param value Wert
-	 * @return Ob das Schreiben erfolgreich war
+	 * Write one nibble to RAM-memory (based on currently selected RAM-Module)
+	 * @param value Memory-value
+	 * @return <c>true</c> if successful, else <c>false</c>
 	 */
 	virtual bool writeRAM(const uint4_t value);
+	
 	/**
-	 * Liest ein Status Nibble an der aktuellen Adresse
-	 * @param address Statusadresse
-	 * @return Wert
+	 * Read one nibble from RAM-status-memory (based on currently selected RAM-Module)
+	 * @param address Status-address
+	 * @return Status-value
 	 */
 	virtual uint4_t readStatus(const int address);
+	
 	/**
-	 * Schreibt ein Status Nibble an die aktuelle Adresse
-	 * @param address Statusadresse
-	 * @param value Wert
-	 * @return Ob an der Stelle schreibbar war
+	 * Write one nibble to RAM-status-memory (based on currently selected RAM-Module)
+	 * @param address Status-address
+	 * @param value Status-value
+	 * @return <c>true</c> if successful, else <c>false</c>
 	 */
 	virtual bool writeStatus(const int address, const uint4_t value);
+	
 	/**
-	 * Liest den Port des aktuell ausgweählten Chips
-	 * @return Wert
+	 * Read one nibble from RAM-port (based on currently selected RAM-Module)
+	 * @return Port-value
 	 */
-	virtual uint4_t readPortBurffer();
+	virtual uint4_t readPortBuffer();
+	
 	/**
-	 * Schreibt ein Nibble in den Ausgangspuffer des ausgewählten Chips
-	 * @param value Wert
-	 * @return Ob an dieser Stelle schreibbar war
+	 * Write one nibble to ROM-port (based on currently selected RAM-Module)
+	 * @param value Port-value
+	 * @return <c>true</c> if successful, else <c>false</c>
 	 */
 	virtual bool writePortBuffer(uint4_t value);
+	
 	/**
-	 * Setzt die aktuelle Bank
+	 * Set currently selected bank
 	 * @param bank Bank
 	 */
 	virtual void setCurrentBank(const ERAMBank bank);
+	
 	/**
-	 * Setzt den aktuellen Chip
+	 * Set currently selected chip
 	 * @param chip Chip
 	 */
 	virtual void setCurrentChip(const ERAMChip chip);
+	
 	/**
-	 * Setzt das aktuelle Register
+	 * Set currently selected register
 	 * @param reg Register
 	 */
 	virtual void setCurrentRegister(const ERAMRegister reg);
+	
 	/**
-	 * Setzt die aktuelle Adresse
-	 * @param address Adresse
+	 * Set currently selected address
+	 * @param address Address
 	 */
 	virtual void setCurrentNibbleAddress(const int address);
+
 private:
 	/**
-     * Aktive Bank
+     * Active bank
      */
 	ERAMBank currentBank;
+	
 	/**
-     * Aktiver Chip
+     * Active chip
      */
 	ERAMChip currentChip;
+	
 	/**
-     * Aktives Register
+     * Active register
      */
 	ERAMRegister currentRegister;
+	
 	/**
-     * Aktive Adresse
+     * Active address
      */
 	int currentNibbleAddress;
+	
 	/**
-     * RAM Speicher
+     * RAM memory
      */
 	uint4_t ****RAM;
+	
 	/**
-     * RAM Status Speicher
+     * RAM status memory
      */
 	uint4_t ****RAMStatus;
+	
 	/**
-     * RAM Port Speicher
+     * RAM port memory
      */
 	uint4_t **RAMPort;
+	
 	/**
-     * Aktivierte RAM Chips
+     * Installed RAM-chips
      */
 	bool **INSTALLEDRAM;
 };

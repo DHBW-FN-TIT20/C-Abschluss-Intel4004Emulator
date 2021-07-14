@@ -1,13 +1,12 @@
 /*
-	Autoren:
-	- Henry Schuler
+	Authors:
 	- David Felder
-	- Lea Silberzahn
 	- Florian Herkommer
+	- Henry Schuler
+	- Lea Silberzahn
 */
 #ifndef _4004_h_
 #define _4004_h_
-
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 	#include "..\inc\MCS4BaseClasses.h"
@@ -18,7 +17,6 @@
 	#include "../4001-ROM/4001.h"
 	#include "../4002-RAM/4002.h"
 #endif
-
 #include "4004_stack.h"
 
 // Include global header files
@@ -27,300 +25,429 @@
 // Declaring namespaces
 using namespace std;
 
+
 class Intel4004 : public Intel4004Base {
 public:
 	enum {
         MAX_NUMBER_OF_REGISTERS = 16
     };
+	
 	/**
-	 * Konstruktor
+	 * Constructor
 	 */
 	Intel4004(const uint16_t installed_ROM_Chips = 0xFFFF, const uint32_t installed_RAM_Chips = 0xFFFFFFFF);
+	
 	/**
-	 * Destruktor
+	 * Destructor
 	 */
 	virtual ~Intel4004();
+	
 	/**
-	 * Setzt den Prozessor zurück
+	 * Reset processor to default
 	 */
 	virtual void reset();
+	
 	/**
-	 * Gibt den Wert des Übertrags aus.
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.19
-	 * @return Übertrag
+	 * Return carry flag
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.19
+	 * @return Carry flag
 	 */
 	virtual bool getCarry() const;
+	
 	/**
-	 * Gibt den Wert des Akkumulators aus.
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.19
-	 * @return Akkumulator
+	 * Return accumulator value
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.19
+	 * @return Accumulator value
 	 */
 	virtual uint4_t getAccumulator() const;
+	
 	/**
-	 * Gibt die aktuelle Adresse der Ablaufsteuerung aus.
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.19
-	 * @return Adresse der Ablaufsteuerung
+	 * Return current program address (currently executed command position)
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.19
+	 * @return Program address
 	 */
 	virtual UBankedAddress getPC() const;
+	
 	/**
-	 * Dient zum auslesen eines Registers (Register 0..15).
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.19 und MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf S. 11
-	 * @param reg Registernummer
-	 * @return Nibble
+	 * Read register content (register 0..15).
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.19 and MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.11
+	 * @param reg Register
+	 * @return Register content (nibble)
 	 */
 	virtual uint4_t getRegister(const ERegister reg);
+	
 	/**
-	 * Dient zum auslesen eines Registerspaars (Register R1R0 ... R15R14).
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.19 und MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf S. 11
-	 * @param reg Registerpaar Nummer
-	 * @return Byte
+	 * Read register pair content (register R1R0 ... R15R14).
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.19 and MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.11
+	 * @param reg Register pair
+	 * @return Register pair content (byte)
 	 */
 	virtual uint8_t getRegisterPair(const ERegister reg);
+	
 	/**
-	 * Gibt den ROM Handle zurück.
-	 * @return ROM Handle
+	 * Return pointer to ROM
+	 * @return ROM pointer
 	 */
 	virtual Intel4001Base* getPtrToROM();
+	
 	/**
-	 * Gibt den RAM Handle zurück.
-	 * @return RAM Handle
+	 * Return pointer to RAM
+	 * @return RAM pointer
 	 */
 	virtual Intel4002Base* getPtrToRAM();
+	
 	/**
-	 * Gibt den Stack Handle zurück.
-	 * @return Stack Handle
+	 * Return pointer to stack
+	 * @return Stack pointer
 	 */
 	virtual Intel4004StackBase* getPtrToStack();
+	
 	/**
-	 * Gibt die Anzahl der Ticks (Subzyklen) zurück die bisher gemessen wurden.
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.6
-	 * @return Anzahl Ticks
+	 * Return amount of ticks since start of execution
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.6
+	 * @return Amount ticks
 	 */
 	virtual uint64_t getTicks() const;
+	
 	/**
-	 * Setzt die Ticks zurück (Subzyklen)
+	 * Reset ticks
 	 */
 	virtual void resetTicks();
-	/** Gibt den Pin zurück (Hardwareschnittstelle).
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.6
-	 * @return <c>true</c> wenn eingeschaltet, sonst <c>false</c>
+	
+	/**
+	 * Return test pin state
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf p.6
+	 * @return <c>true</c> if set, else <c>false</c>
 	 */
 	virtual bool getTestPin() const;
+	
 	/**
-	 * Setzt den Pin (Hardwareschnittstelle)
-	 * <br>Hinweis:</br> Siehe studienarbeit-4004.pdf S.6
-	 * @param value <c>true</c> wenn eingeschaltet, sonst <c>false</c>
+	 * Set/reset test pin
+	 * <br>Hint:</br> Take a look at studienarbeit-4004.pdf S.6
+	 * @param value <c>true</c> if set, else reset <c>false</c>
 	 */
 	virtual void setTestPin(const bool value);
-	/** Ruft die Programmablaufschnittstelle auf. Über diese Schnittstelle können die Befehle Step für Step abgearbeitet werden. */
+	
+	/** 
+	 * Execute next command in ROM. Iterate through program step by step.
+	 */
 	virtual void nextCommand();
 
 private:
+	/**
+	 * Carry flag
+	 */
 	bool carryFlag;
+
+	/**
+	 * Test pin
+	 */
 	bool testPin;
+
+	/**
+	 * Accumulator (4bit)
+	 */
 	uint4_t accumulator;
+	
+	/**
+	 * Tick counter
+	 */
 	uint64_t ticks;
+	
+	/**
+	 * Program counter (stores address of executed command)
+	 */
 	UBankedAddress PC;
+	
+	/**
+	 * Register memory
+	 */
 	uint4_t *registers;
+
+	/**
+	 * ROM instance
+	 */
 	Intel4001 *ROM;
+
+	/**
+	 * RAM instance
+	 */
 	Intel4002 *RAM;
+
+	/**
+	 * Stack instance
+	 */
 	Intel4004Stack *stack;
 	
-	/** Intel4004 operation functions
-	 *	PC zuerst erhöhen, dann Funktion aufrufen!!
-	 * 	Bei two-word-commands liest nextCommand() beide Bytes ein und übergibt diese an die jeweilige Funtion
-	 */
 
-	/******* One word machine instruction ********************/
+	/******* One-Word-Instructions *****************************/
 	/**
 	 * No Operation
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-48
 	 */
 	void NOP();
+	
 	/**
 	 * Load data to Accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-37
 	 * @param UCommand command
 	 */
 	void LDM(UCommand command);
+	
 	/**
 	 * Load index register to Accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-24
 	 * @param UCommand command
 	 */ 
 	void LD(UCommand command);
+	
 	/**
 	 * Exchange index register and accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-25
 	 * @param UCommand command
 	 */ 
 	void XCH(UCommand command);
+	
 	/**
 	 * Add index register to accumulator with carry
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-21
 	 * @param UCommand command
 	 */ 
 	void ADD(UCommand command);
+	
 	/**
 	 * Subtract index register from accumulator with borrow
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-22
 	 * @param UCommand command
 	 */ 
 	void SUB(UCommand command);
+	
 	/**
 	 * Increment index register
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-17
 	 * @param UCommand command
 	 */ 
 	void INC(UCommand command);
+	
 	/**
 	 * Branch back and load data to the accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-46
 	 * @param UCommand command
 	 */ 
 	void BBL(UCommand command);
+	
 	/**
 	 * Jump indirect
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-40
 	 * @param UCommand command
 	 */ 
 	void JIN(UCommand command);
+	
 	/**
 	 * Send register control
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-50
 	 * @param UCommand command
 	 */ 
 	void SRC(UCommand command);
+	
 	/**
 	 * Fetch indirect from ROM
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-18
 	 * @param UCommand command
 	 */ 
 	void FIN(UCommand command);
 
-	/******************Accumulator Group Instructions **********/
-
+	
+	/******* Accumulator-Group-Instructions ********************/
 	/**
 	 * Clear both
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-27
 	 */
 	void CLB();
+	
 	/**
 	 * Clear carry
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-27
 	 */
 	void CLC();
+	
 	/**
 	 * Complement carry
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-29
 	 */
 	void CMC();
+	
 	/**
 	 * Set carry
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-34
 	 */
 	void STC();
+	
 	/**
 	 * Complement Accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-29
 	 */
 	void CMA();
+	
 	/**
 	 * Increment accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-28
 	 */
 	void IAC();
+	
 	/**
 	 * Decrement accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-32
 	 */
 	void DAC();
+	
 	/**
 	 * Rotate left
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-30
 	 */
 	void RAL();
+	
 	/**
 	 * Rotate right
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-31
 	 */
 	void RAR();
+	
 	/**
 	 * Transmit carry and clear
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-32
 	 */
 	void TCC();
+	
 	/**
 	 * Decimal adjust accumulator
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-34
 	 */
 	void DAA();
+	
 	/**
 	 * Transfer carry subtract
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-33
 	 */
 	void TCS();
+	
 	/**
 	 * Keyboard process
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-35
 	 */
 	void KBP();
+	
 	/**
 	 * Designate command line
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-48
 	 */
 	void DCL();
 
-	/************ Two-Word-Instructions ***********************************/
+	
+	/******* Two-Word-Instructions *****************************/
 	/**
 	 * Jump unconditional
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-38
 	 * @param UCommand firstCommand
 	 * @param UCommand secondCommand
 	 */
 	void JUN(UCommand byte1, UCommand byte2);
+	
 	/**
 	 * Jump to Subroutine
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-45
 	 * @param UCommand firstCommand
 	 * @param UCommand secondCommand
 	 */
 	void JMS(UCommand byte1, UCommand byte2);
+	
 	/**
 	 * Jump conditional
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-41
 	 * @param UCommand firstCommand
 	 * @param UCommand secondCommand
 	 */
 	void JCN(UCommand byte1, UCommand byte2);
+	
 	/**
 	 * Increment index register skip if zero
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-43
 	 * @param UCommand firstCommand
 	 * @param UCommand secondCommand
 	 */
 	void ISZ(UCommand byte1, UCommand byte2);
+	
 	/**
 	 * Fetched immediate from ROM
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-36
 	 * @param UCommand firstCommand
 	 * @param UCommand secondCommand
 	 */
 	void FIM(UCommand byte1, UCommand byte2);
 
-	/******************** Input-Output-Instructions *******************************/
+	
+	/******* Input-Output-Instructions *************************/
 	/**
 	 * Read RAM character
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-54
 	 */
 	void RDM();
+	
 	/**
 	 * Read RAM status character 0-3
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-54
 	 */
 	void RDn(UCommand command);
+	
 	/**
 	 * Read ROM port
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-55
 	 * @param UCommand command
 	 */
 	void RDR();
+	
 	/**
 	 * Write accumulator into RAM character
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-56
 	 */
 	void WRM();
+	
 	/**
 	 * Write accumulator into RAM status character 0-3
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-57
 	 * @param UCommand command
 	 */
 	void WRn(UCommand command);
+	
 	/**
 	 * Write Program RAM
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-62
+	 * <br>Hint:</br> This function has no implementation because Intel4008/Intel4009 are missing
 	 */
 	void WPM();
+	
 	/**
 	 * Write ROM port
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-59
 	 */
 	void WRR();
+	
 	/**
 	 * Write memory port
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-58
 	 */
 	void WMP();
+	
 	/**
 	 * Add from memory with carry
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-60
 	 */
 	void ADM();
+	
 	/**
 	 * Subtract from memory with borrow
+	 * <br>Hint:</br> Take a look at MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf p.3-61
 	 */
 	void SBM();
-
 };
 #endif // _4004_h_

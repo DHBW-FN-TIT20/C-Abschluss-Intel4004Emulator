@@ -1,5 +1,5 @@
 /*
-	Autoren:
+	Authors:
 	- Henry Schuler
     - Thomas Staudacher
 */
@@ -19,15 +19,14 @@
 using namespace std;
 
 
-Intel4001::Intel4001(const uint16_t installed_banks) : installed_banks(installed_banks), currentChip(ROMCHIP0), ROM(nullptr), INSTALLEDROM(nullptr), PORTS(nullptr) {
-
+Intel4001::Intel4001(const uint16_t installedBanks) : installedBanks(installedBanks), currentChip(ROMCHIP0), ROM(nullptr), INSTALLEDROM(nullptr), PORTS(nullptr) {
     ROM = new uint8_t[ROM_MEMORY_SIZE];
     INSTALLEDROM = new bool[MAX_NUMBER_OF_ROM_CHIPS];
     PORTS = new uint4_t[MAX_NUMBER_OF_ROM_CHIPS];
 
-    //ROM Bereiche die vorhanden sind instalieren
+    // Install available ROM Chips (copy installedBanks to bool-array)
     {
-        uint16_t banks = {installed_banks};
+        uint16_t banks = {installedBanks};
         for(auto chip = 0; chip < MAX_NUMBER_OF_ROM_CHIPS; ++chip, banks >>= 1)
             INSTALLEDROM[chip] = banks & 1;
     }
@@ -40,23 +39,21 @@ Intel4001::~Intel4001() {
 }
 
 void Intel4001::reset() {
-
     memset(ROM, 0, ROM_MEMORY_SIZE);
     memset(PORTS, 0, MAX_NUMBER_OF_ROM_CHIPS);
     currentChip = ROMCHIP0;
 }
 
 uint16_t Intel4001::getEnabledBank() const {
-    return installed_banks;
+    return installedBanks;
 }
 
 void Intel4001::writeFromBinaryFile(const char * const path) {
     ifstream is (path, ifstream::binary);
     if(is.is_open()) {
-        is.read((char *)ROM,ROM_MEMORY_SIZE);
-
+        is.read((char *)ROM, ROM_MEMORY_SIZE);
+        // Delete written data in not installed Chips
         clearROMWhoIsNotInstalled();
-
         is.close();
     }
 }
@@ -64,8 +61,9 @@ void Intel4001::writeFromBinaryFile(const char * const path) {
 void Intel4001::writeFromIntelHexFile(const char * const path) {
     if(!readHexFile(path, ROM, ROM_MEMORY_SIZE))
     {
-        //irgend eine Fehlerabarbeitung;
+        // Error case
     }
+    // Delete written data in not installed Chips
     else clearROMWhoIsNotInstalled();
 }
 
@@ -74,9 +72,8 @@ int Intel4001::writeFrom(uint8_t *data, const int count) {
         return 0;
     else {
         memcpy(ROM, data, count);
-
+        // Delete written data in not installed Chips
         clearROMWhoIsNotInstalled();
-
         return count;
     }
 }
@@ -84,7 +81,7 @@ int Intel4001::writeFrom(uint8_t *data, const int count) {
 bool Intel4001::isLinAdrAccessable(const uint16_t address) const {
     UBankedAddress banked = {address};
     return INSTALLEDROM[banked.banked.bank];
-};
+}
 
 uint8_t Intel4001::read(const UBankedAddress address) const {
     return ROM[address.raw & 0x0FFF];
@@ -106,9 +103,7 @@ bool Intel4001::writeToPort(const EROMChip chip, const uint4_t value) {
 }
 
 void Intel4001::clearROMWhoIsNotInstalled() {
-    uint16_t banks = {installed_banks};
-
-    for(auto chip = 0; chip < MAX_NUMBER_OF_ROM_CHIPS; ++chip, banks >>= 1)
+    for(auto chip = 0; chip < MAX_NUMBER_OF_ROM_CHIPS; chip++)
         if(!INSTALLEDROM[chip]) memset(ROM+chip*ROM_CELLS_EACH_CHIP,0,ROM_CELLS_EACH_CHIP);
 }
 

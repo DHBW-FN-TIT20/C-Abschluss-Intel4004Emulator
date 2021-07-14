@@ -1,5 +1,5 @@
 /*
-	Autoren:
+	Author:
 	- Henry Schuler
 */
 // Include local header files
@@ -144,7 +144,7 @@ bool Intel4002::writeStatus(const int address, const uint4_t value) {
     return writeStatusNibble(currentBank, currentChip, currentRegister, (address & 0b11), value);
 }
 
-uint4_t Intel4002::readPortBurffer() {
+uint4_t Intel4002::readPortBuffer() {
     return readFromPortBuffer(currentBank, currentChip);
 }
 

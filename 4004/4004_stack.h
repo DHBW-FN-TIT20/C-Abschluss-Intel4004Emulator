@@ -1,3 +1,8 @@
+/*
+	Authors:
+	- Henry Schuler
+	- Thomas Staudacher
+*/
 #ifndef _4004_STACK_H_
 #define _4004_STACK_H_
 // Include local header files
@@ -7,7 +12,7 @@
 	#include "../inc/MCS4BaseClasses.h"
 #endif
 
-// Include gloabel header files
+// Include global header files
 #include <cstdint>
 
 // Declaring namespaces
@@ -15,94 +20,108 @@ using namespace std;
 
 
 /**
- * Stackverwaltung für den Intel4004 Prozessor.
- * Angelegt als Zirkularspeicher (d.h. es wird überschrieben)
- * wenn mehr wei drei Werte eingeschrieben worden sind und nicht
- * wieder ausgelesen.
+ * Stack handling for Intel4004 processor.
+ * Ring-stack (meaning addresses will be overwritten)
+ * Overwriting if more than 3 addresses are saved/pushed (without read)
  */
 class Intel4004Stack : public Intel4004StackBase {
 public:
-	/** Konstruktor */
+	/** 
+	 * Constructor 
+	 */
 	Intel4004Stack();
 
 	/**
-	 * Copy-Konstruktor
-	 * @param other Zu kopierendes Objekt
+	 * Copy-constructor
+	 * @param other Object to be copied
 	 */
 	Intel4004Stack(const Intel4004Stack &other);
 
-	/** Destruktor */
+	/**
+	 * Destructor 
+	 */
 	virtual ~Intel4004Stack();
 
 	enum {
-        STACKSIZE = 3	//!< Maximale Größe des Intel 4004 Stacks
+        STACKSIZE = 3	//!< Maximale size of ring-stack
     };
 
     /**
-     * Wirkrichtung
+     * Direction of action
      */
     typedef enum {
-        PUSH,	//!< Hineinspeichern
-        POP		//!< Herausholen
+        PUSH,	//!< Write
+        POP		//!< Read
     } EDirection;
 
 	/**
-	 * Schreibt eine Adresse (Wert) in den Stack ein
-	 * @param address Adresse
+	 * Write UBankedAddress to stack
+	 * @param address Address
 	 */
 	virtual void push(const UBankedAddress address);
 
 	/**
-	 * Liest eine Adresse (Wert) aus dem Stack aus
-	 * @return Adresse
+	 * Read UBankedAddress from stack
+	 * @return Address
 	 */
 	virtual UBankedAddress pop();
 
-	/** Setzt den Stack zurück */
+	/**
+	 * Reset stack to default
+	 */
 	virtual void reset();
 
 	/**
-	 * Gibt die Aktulle Position im Stack aus
-	 * @return Position
+	 * Return current stack-position
+	 * @return Stack-position
 	 */
 	virtual int getCurrentStackPosition() const;
 
 	/**
-	 * Zahlt die Anzahl der eingeschriebenen Adressen (Werte)
-	 * @return Anzahl
+	 * Counts amount of written addresses
+	 * @return amount
 	 */
 	virtual int getCount() const;
 
 	/**
-	 * Gibt zurück ob der Stack übergelaufen ist (mehr Werte reingeschrieben wie reinpassen)
-	 * @return <c>true</c> wenn Überlauf, sonst <c>false</c>
+	 * Checks if stack overflow occurred (more write than read)
+	 * @return <c>true</c> if overflow, else <c>false</c>
 	 */
 	virtual bool isOverflow() const;
 
 	/**
-	 * Gibt zurück ob der Stack unterlauf ist (mehr Werte ausgelsen wie reingeschrieben)
-	 * @return <c>true</c> wenn Unterlauf, sonst <c>false</c>
+	 * Checks if stack underflow occurred (more read than write)
+	 * @return <c>true</c> if underflow, else <c>false</c>
 	 */
 	virtual bool isUnderflow() const;
 
 	/**
-	 * Kopie der Stackinhalte
-	 * @param ptr Zeiger auf Kopie (Array der Größe STACKSIZE)
-	 * @return Pointer auf Kopie
+	 * Copy of current stack content
+	 * @param ptr Pointer to stack copy (UBankedAddress array with STACKSIZE)
+	 * @return Pointer to stack copy
 	 */
 	UBankedAddress* getCopyOfStack(UBankedAddress *const ptr) const;
 
 protected:
-
-	/** Wird aufgerufen wenn ein Fehler passiert */
+	/** 
+	 * Is called if error occurred (overflow/underflow)
+	 */
 	virtual void WarningCondition(const EDirection direction);
-private:
 
-	/** Position des Stackzeigers */
+private:
+	/** 
+	 * Position of stack-pointer
+	 */
 	int position;
-	/** Zählt die Anzahl der eingeschriebenen Adressen (Werte) */
+	
+	/** 
+	 * Amount of saved addresses 
+	 */
 	int count;
-	/** Stackspeicher */
+	
+	/** 
+	 * Stack memory
+	 */
 	UBankedAddress *stack;
 };
 #endif // _4004_STACK_H_
