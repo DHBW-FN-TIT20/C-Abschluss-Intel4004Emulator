@@ -1,9 +1,9 @@
 /*
-	Authors:
-	- David Felder
-	- Florian Herkommer
-	- Henry Schuler
-	- Lea Silberzahn
+    Authors:
+    - David Felder
+    - Florian Herkommer
+    - Henry Schuler
+    - Lea Silberzahn
 */
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)

@@ -1,6 +1,6 @@
 /*
-	Author:
-	- Henry Schuler
+    Author:
+    - Henry Schuler
 */
 // Include local header files
 #include "4002.h"

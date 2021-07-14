@@ -1,6 +1,6 @@
 /*
-	Authors:
-	- Henry Schuler
+    Authors:
+    - Henry Schuler
     - Thomas Staudacher
 */
 // Include local header files

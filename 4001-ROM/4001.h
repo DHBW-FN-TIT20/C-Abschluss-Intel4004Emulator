@@ -1,6 +1,6 @@
 /*
-	Authors:
-	- Henry Schuler
+    Authors:
+    - Henry Schuler
     - Thomas Staudacher
 */
 #ifndef _4001_h_
