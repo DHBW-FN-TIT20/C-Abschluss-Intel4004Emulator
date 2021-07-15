@@ -81,7 +81,7 @@ Intel4004StackBase* Intel4004::getPtrToStack() {
 }
 
 uint64_t Intel4004::getTicks() const {
-    return ticks;
+    return TICKS_PER_CYCLE * ticks;
 }
 
 void Intel4004::resetTicks() {

@@ -29,7 +29,8 @@ using namespace std;
 class Intel4004 : public Intel4004Base {
 public:
 	enum {
-        MAX_NUMBER_OF_REGISTERS = 16
+        MAX_NUMBER_OF_REGISTERS = 16,
+		TICKS_PER_CYCLE = 8
     };
 	
 	/**
