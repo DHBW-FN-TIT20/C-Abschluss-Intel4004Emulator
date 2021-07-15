@@ -3986,5 +3986,133 @@ TEST_CASE("UnitTest_Test_Programs") {
         // before LOOP (FIM) + LOOP (FIN = 2 ticks) + after LOOP (JUN)
         CHECK(processor->getTicks() == 2 + 11 * 10 + 2);
     }
+    SECTION("TestPinLoop") {
+        /**
+         * FIM_2 0x05   1
+         * FIM_0 0x20   1
+         * LD_1         1
+         * ADD_2        1
+         * XCH_1        1
+         * FIN_0        1
+         * INC_2        1
+         * ISZ_3 0x02   1
+         * JUN_0 0x0B   1
+         * NOP          1
+         */
+
+        uint8_t source[] = { FIM_2, 0x05, FIM_0, 0x20, LD_1, ADD_2, XCH_1, FIN_0, INC_2, ISZ_3, 0x02, JUN_0, 0x0B, NOP, NOP, NOP, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 28);
+
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getTestPin());
+        // FIM_0 - ISZ_3
+        while (processor->getPC().raw != 0x00B) {
+            processor->nextCommand();
+        }
+        // JUN_0 0x0B
+        processor->nextCommand();
+        CHECK(processor->getPC().raw == 0x00B);
+
+        CHECK((int) processor->getRegisterPair(Pair_R3_R2) == 0xB0);
+
+        // before LOOP (FIM) + LOOP (FIN = 2 ticks) + after LOOP (JUN)
+        CHECK(processor->getTicks() == 2 + 11 * 10 + 2);
+    }
+    SECTION("TestPinLoop") {
+        /**
+         * FIM_0 0x00   1
+         * JMS_0 0x10   1
+         * JCN_4 0x02   1
+         * INC_0        1
+         * LDM_1        1
+         * XCH_1        1
+         * JUN_0 0x02   1
+         * NOP
+         * JCN_1 0x16   1
+         * LDM_0        1
+         * XCH_1        1
+         * BBL_0        1
+         * NOP
+         * LD_1         1
+         * JCN_4 0x1B   1
+         * BBL_1        1
+         * NOP
+         * 
+         * Hex code for online tool: (Note: you have to manually set the TEST pin and TEST pin is reversed -> check = not set; uncheck = set)
+         * 20 00 50 10 14 02 60 D1 B1 40 02 00 00 00 00 00 19 16 D0 B1 C0 00 A1 14 1B C0 00 C1 00
+         */
+
+        uint8_t source[] = { FIM_0, 0x00, JMS_0, 0x10, JCN_4, 0x02, INC_0, LDM_1, XCH_1, JUN_0, 0x02, NOP, NOP, NOP, NOP, NOP, JCN_9, 0x16, LDM_0, XCH_1, BBL_0, NOP, LD_1, JCN_4 , 0x1B, BBL_0, NOP, BBL_1, NOP };
+
+        Intel4004Base *processor = { get4004Instance(0xFFFF, 0xFFFFFFFF) };
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 29);
+
+        REQUIRE(processor->getPC().banked.address == 0x00);
+        CHECK_FALSE(processor->getCarry());
+        CHECK_FALSE(processor->getAccumulator());
+        CHECK_FALSE(processor->getTestPin());
+        // First loop iteration without TestPin set -> no change (R1 = 0)
+        for (int i = 0; i < 7; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 0);
+        CHECK(processor->getRegister(R1) == 0);
+        CHECK(processor->getPC().banked.address == 0x02);
+        CHECK(processor->getAccumulator() == 0);
+        // Set TestPin
+        processor->setTestPin(true);
+        // First loop iteration with TestPin set -> change (R0 = 1, R1 = 1)
+        for (int i = 0; i < 7; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 1);
+        CHECK(processor->getRegister(R1) == 0);
+        for (int i = 0; i < 2; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 1);
+        CHECK(processor->getRegister(R1) == 1);
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x02);
+        // Second iteration with TestPin -> no change because still set (R1 = 1)
+        for (int i = 0; i < 6; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 1);
+        CHECK(processor->getRegister(R1) == 1);
+        CHECK(processor->getPC().banked.address == 0x02);
+        // Reset TestPin
+        processor->setTestPin(false);
+        // Second iteration without TestPin -> no change (R1 = 0)
+        for (int i = 0; i < 6; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 1);
+        CHECK(processor->getRegister(R1) == 0);
+        CHECK(processor->getPC().banked.address == 0x02);
+        // Set TestPin
+        processor->setTestPin(true);
+        // Third iteration with TestPin -> change (R0 = 2, R1 = 1)
+        for (int i = 0; i < 7; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 2);
+        CHECK(processor->getRegister(R1) == 0);
+        for (int i = 0; i < 2; i++) {
+            processor->nextCommand();
+        }
+        CHECK(processor->getRegister(R0) == 2);
+        CHECK(processor->getRegister(R1) == 1);
+        processor->nextCommand();
+        CHECK(processor->getPC().banked.address == 0x02);
+
+        CHECK(processor->getTicks() == 60);
+    }
 }
 #endif

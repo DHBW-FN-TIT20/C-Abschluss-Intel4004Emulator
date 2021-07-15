@@ -2,14 +2,14 @@
 //Logging und Unittest sind optional
 //Ein Beispiel für eine Logging.ini ist auch hochgeladen
 
-#include <400x_GlobalDefines.h>
-#include <easylogging++.h>
+#include "..\4004\4004.h"
+#include "easylogging++.h"
 INITIALIZE_EASYLOGGINGPP
 
 #define CATCH_CONFIG_FAST_COMPILE	//Beschleunigte Compilierung
 #define CATCH_CONFIG_RUNNER
 
-#include <catch.hpp>				//Sourcen von Catch2
+#include "..\UnitTest\catch.hpp"				//Sourcen von Catch2
 
 void setUp() {
 	//Logging einschalten
@@ -57,14 +57,14 @@ TEST_CASE("SimpleTest") {
 		CHECK_FALSE(processor->getCarry());
 		CHECK_FALSE(processor->getAccumulator());
 		processor->nextCommand();
-		CHECK(processor->getCarry());
+		CHECK_FALSE(processor->getCarry());
 		CHECK(processor->getAccumulator() == 15);
 		processor->nextCommand();
 		CHECK_FALSE(processor->getCarry());
 		CHECK_FALSE(processor->getAccumulator());
-		CHECK((Intel4004::CYCLES_PER_INSTRUCTION * 3) == processor->getTicks());
+		CHECK(3 == processor->getTicks());
 
-		delete processor;
+		//delete[] processor;
 	}
 
 	SECTION("CMC") {
@@ -86,8 +86,9 @@ TEST_CASE("SimpleTest") {
 		CHECK_FALSE(processor->getCarry());
 		processor->nextCommand();
 		CHECK(processor->getCarry());
-		CHECK((Intel4004::CYCLES_PER_INSTRUCTION * 2) == processor->getTicks());
+		CHECK(2 == processor->getTicks());
 
-		delete processor;
+		//delete[] processor;
+		// Delete, cycles per instruction, getCarry bei dac
 	}
 }
