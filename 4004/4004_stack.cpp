@@ -64,9 +64,7 @@ void Intel4004Stack::reset() {
 }
 
 int Intel4004Stack::getCurrentStackPosition() const {
-	if(count < 1) return 0;
-	else if(count > STACKSIZE) return STACKSIZE;
-	else return count;
+	return count % 3;
 }
 
 int Intel4004Stack::getCount() const {
@@ -74,7 +72,7 @@ int Intel4004Stack::getCount() const {
 }
 
 bool Intel4004Stack::isOverflow() const {
-	return count >= STACKSIZE;
+	return count > STACKSIZE;
 }
 
 bool Intel4004Stack::isUnderflow() const {
