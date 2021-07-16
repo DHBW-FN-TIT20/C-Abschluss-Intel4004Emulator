@@ -27,9 +27,9 @@ Intel4004::Intel4004(const uint16_t installed_ROM_Chips, const uint32_t installe
 
 Intel4004::~Intel4004() {
     delete[] registers;
-    delete[] ROM;
-    delete[] RAM;
-    delete[] stack;
+    delete ROM;
+    delete RAM;
+    delete stack;
 }
 
 void Intel4004::reset() {
