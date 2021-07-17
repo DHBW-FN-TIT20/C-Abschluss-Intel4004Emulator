@@ -44,18 +44,29 @@ void functionIntel4004() {
     Intel4001Base *ROM = processor->getPtrToROM();
 
 
+    // Access Stack Module
+    Intel4004StackBase *Stack = processor->getPtrToStack();
+
+
     // Write to ROM
     // Array containing Commands (FIM_0 0xFF, NOP)
     uint8_t source[] = { 0x50, 0xFF, 0x00 };
     processor->getPtrToROM()->writeFrom(source, sizeof(source));
     // IntelHex file
-    /*
-    processor->getPtrToROM()->writeFromIntelHexFile("hexFilePath");
-    */
+    /**
+     * processor->getPtrToROM()->writeFromIntelHexFile("hexFilePath");
+     */
     // Binary file
-    /*
-    processor->getPtrToROM()->writeFromBinaryFile("binaryFilePath");
-    */
+    /**
+     * processor->getPtrToROM()->writeFromBinaryFile("binaryFilePath");
+     */
+
+
+    // Get a copy of the current Stack
+    UBankedAddress *copyStack = new UBankedAddress[3]();
+    processor->getPtrToStack()->getCopyOfStack(copyStack);
+    // Here you can access the copyStack array -> check the Elements on the stack
+    delete copyStack;
 
 
     // Perform next command operation
@@ -63,6 +74,8 @@ void functionIntel4004() {
     
     // View current state of processor
     functionPrintProcessorState(processor);
+
+    delete processor;
 }
 
 bool functionPrintProcessorState(Intel4004Base *processor) {
