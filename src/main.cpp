@@ -1,9 +1,6 @@
 /*
     Authors:
-    - David Felder
-    - Florian Herkommer
     - Henry Schuler
-    - Lea Silberzahn
 */
 // Include local header files
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -79,6 +76,9 @@ void functionIntel4004() {
 }
 
 bool functionPrintProcessorState(Intel4004Base *processor) {
+    /**
+     * This function was just created as an addition. There is no guarantee for correctness.
+     */
     cout << "---- Intel4004 Emulation ----" << endl << endl;
     cout << "Intel4004 CPU:" << endl;
     cout << setw(8) << "PC " << hex << setw(3) << setfill('0') << (int) processor->getPC().raw << dec << setfill(' ') << endl;
@@ -141,6 +141,9 @@ bool functionPrintProcessorState(Intel4004Base *processor) {
             }
             cout << endl;
         }
+        cout << endl;
+        uint4_t romPort = processor->getPtrToROM()->readFromPort((EROMChip) i);
+        cout << "Port " << (int) ((romPort & 0b1000) >> 3) << " " << (int) ((romPort & 0b0100) >> 2) << " " << (int) ((romPort & 0b0010) >> 1) << " " << (int) ((romPort & 0b0001) >> 0) << endl;
         cout << endl;
     }
     cout << endl;
