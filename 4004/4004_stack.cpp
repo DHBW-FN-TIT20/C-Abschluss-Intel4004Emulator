@@ -68,7 +68,9 @@ int Intel4004Stack::getCurrentStackPosition() const {
 }
 
 int Intel4004Stack::getCount() const {
-	return count;
+	if(count < 1) return 0;
+	else if(count > STACKSIZE) return STACKSIZE;
+	else return count;
 }
 
 bool Intel4004Stack::isOverflow() const {

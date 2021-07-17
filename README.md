@@ -5,7 +5,7 @@ Folder | Usage
 ------ | -----
 [4001-ROM](4001-ROM) | source files for Intel4001 ROM module
 [4002-RAM](4002-RAM) | source files for Intel4002 RAM module
-[4004](4004) | source files for Intel4004 module
+[4004](4004) | source files for Intel4004 CPU and Intel4004Stack module
 [UnitTest](UnitTest) | contains [unittest.cpp](UnitTest/unittest.cpp) and it's needed files
 [docs](docs) | documentaion on Intel400x
 [inc](inc) | source files for Intel400x
@@ -20,10 +20,10 @@ Folder | Usage
 * `g++ unittest.cpp ..\4001-ROM\4001.cpp ..\4002-RAM\4002.cpp ..\4004\4004.cpp ..\4004\4004_stack.cpp ..\inc\intelhex.c -o unittest.exe`
 
 ### Linux:
-* `g++ main.cpp ../4001-ROM/4001.cpp ../4002-RAM/4002.cpp ../4004/4004.cpp ../4004/4004_stack.cpp ../inc/intelhex.c -o main.out*`
+* `g++ main.cpp ../4001-ROM/4001.cpp ../4002-RAM/4002.cpp ../4004/4004.cpp ../4004/4004_stack.cpp ../inc/intelhex.c -o main.out`
 * `g++ unittest.cpp ../4001-ROM/4001.cpp ../4002-RAM/4002.cpp ../4004/4004.cpp ../4004/4004_stack.cpp ../inc/intelhex.c -o unittest.out`
 
-> Note: In your main.cpp or unittest.cpp: only include 4004/4004.h in order to implement the emulation
+> Note: In your main.cpp or unittest.cpp: only include \"4004/4004.h\" in order to implement the emulation
 
 > Note: Your relative paths to the needed c/cpp files might be different if you are not using this project's structure or file naming
 

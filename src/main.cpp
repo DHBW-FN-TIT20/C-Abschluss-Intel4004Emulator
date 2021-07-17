@@ -121,10 +121,10 @@ bool functionPrintProcessorState(Intel4004Base *processor) {
     for (int i = 0; i < 16; i++) {
         cout << "Chip " << i << endl;
         cout << endl;
-        cout << "0 1 2 3 4 5 6 7 8 9 A B C D E F 0 1 2 3 4 5 6 7 8 9 A B C D E F " << endl;
+        cout << " 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F " << endl;
         for (int j = 0; j < 8; j++) {
             for (int k = 0; k < 32; k++) {
-                cout << processor->getPtrToROM()->read((UBankedAddress) ((i * 256) + (j * 32) + k)) << " ";
+                cout << hex << setw(2) << setfill('0') << (int) processor->getPtrToROM()->read((UBankedAddress) ((i * 256) + (j * 32) + k)) << " " << setfill(' ') << dec;
             }
             cout << endl;
         }

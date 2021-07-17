@@ -4347,8 +4347,27 @@ TEST_CASE("UnitTest_4004Stack") {
         
         CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 2);
         
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             CHECK(processor->getPtrToStack()->getCount() == i);
+            processor->nextCommand();
+        }
+
+        for (int i = 0; i < 4; i++) {
+            CHECK(processor->getPtrToStack()->getCount() == 3);
+        }
+
+        processor->reset();
+
+        /**
+         * BBL_0        1
+         */
+
+        source[0] = BBL_0;
+
+        CHECK(processor->getPtrToROM()->writeFrom(source, sizeof(source)) == 2);
+
+        for (int i = 0; i < 3; i++) {
+            CHECK(processor->getPtrToStack()->getCount() == 0);
             processor->nextCommand();
         }
 
