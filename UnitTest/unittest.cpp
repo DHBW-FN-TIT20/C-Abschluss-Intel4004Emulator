@@ -1,3 +1,7 @@
+/**
+ * Author: Henry Schuler
+ * Copyright 2021, Henry Schuler, All rights reserved.
+ */
 #define _UNITTEST_
 #ifdef _UNITTEST_
 #define CATCH_CONFIG_FAST_COMPILE
