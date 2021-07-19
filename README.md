@@ -44,3 +44,14 @@ g++ unittest.cpp ../4001-ROM/4001.cpp ../4002-RAM/4002.cpp ../4004/4004.cpp ../4
 * Florian Herkommer / [github](https://github.com/Floqueboque) / [E-Mail](mailto:herkommer.flor-it20@it.dhbw-ravensburg.de?cc=felder.david-it20@it.dhbw-ravensburg.de;schuler.henry-it20@it.dhbw-ravensburg.de;silberzahn.lea-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
 * Henry Schuler / [github](https://github.com/schuler-henry) / [E-Mail](mailto:schuler.henry-it20@it.dhbw-ravensburg.de?cc=felder.david-it20@it.dhbw-ravensburg.de;herkommer.flor-it20@it.dhbw-ravensburg.de;silberzahn.lea-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
 * Lea Silberzahn / [github](https://github.com/lealabert) / [E-Mail](mailto:silberzahn.lea-it20@it.dhbw-ravensburg.de?cc=felder.david-it20@it.dhbw-ravensburg.de;herkommer.flor-it20@it.dhbw-ravensburg.de;schuler.henry-it20@it.dhbw-ravensburg.de&amp;subject=[GitHub]%20C%20Intel4004%20Emulator)
+
+## [License](LICENSE.md)
+MIT License
+
+Copyright (c) 2021 David Felder, Florian Herkommer, Henry Schuler, Lea Silberzahn
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
